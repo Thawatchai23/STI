@@ -95,7 +95,7 @@ function HomePage() {
         desktop: "/src/img/logo.png",
         mobile: "/src/img/moblie.jpg"
       },
-      title: "อนุรักษ์วัฒนธรรมท้องถิ่น",
+      title: "test",
       subtitle: "สืบสานประเพณีไทย ร่วมสร้างอนาคตที่มั่นคง"
     },
     {
