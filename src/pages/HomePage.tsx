@@ -95,7 +95,7 @@ function HomePage() {
         desktop: "/src/img/logo.png",
         mobile: "/src/img/moblie.jpg"
       },
-      title: "test",
+      title: "kuy",
       subtitle: "สืบสานประเพณีไทย ร่วมสร้างอนาคตที่มั่นคง"
     },
     {
