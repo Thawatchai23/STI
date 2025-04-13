@@ -529,7 +529,7 @@ function HomePage() {
                     {product.name}
                   </h3>
                   <p className="text-gray-600 text-sm mb-4">
-                    ผลิตโดย: {product.producer}
+                    ผลิตโด: {product.producer}
                   </p>
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center">
