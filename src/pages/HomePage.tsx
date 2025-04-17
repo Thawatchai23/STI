@@ -1141,15 +1141,10 @@ function HomePage() {
                   }`}>
                     {getProductTranslation(product, language, product.name as keyof ProductTranslations)}
                   </h3>
-<<<<<<< HEAD
                   <p className={`text-sm mb-4 ${
                     isDarkMode ? 'text-gray-400' : 'text-gray-600'
                   }`}>
                     {translations[language].producedBy}: {product.producer}
-=======
-                  <p className="text-gray-600 text-sm mb-4">
-                    ผลิตโด: {product.producer}
->>>>>>> 75ebd922b5f039288c0ba18b2e0e0f89666b5d2d
                   </p>
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center">
