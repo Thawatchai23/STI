@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, createContext, useContext } from "react";
 import { Link } from "react-router-dom";
 import {
   Building2,
@@ -28,12 +28,131 @@ import {
   LayoutDashboard,
   ChevronLeft,
   ChevronRight,
+  Calculator,
+  BookOpen,
+  Moon,
+  Sun,
+  Languages
 } from "lucide-react";
 import OrderModal from "../components/OrderModal";
 import CartModal from "../components/CartModal";
 import logo from "../img/public1/IMG_0662.png";
 
+interface ThemeContextType {
+  isDarkMode: boolean;
+  toggleTheme: () => void;
+}
 
+interface LanguageContextType {
+  language: 'th' | 'en';
+  toggleLanguage: () => void;
+}
+
+const ThemeContext = createContext<ThemeContextType>({
+  isDarkMode: false,
+  toggleTheme: () => {},
+});
+
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme');
+      return savedTheme === 'dark';
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      document.body.style.backgroundColor = 'rgb(17, 24, 39)';
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.body.style.backgroundColor = '';
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
+
+  const toggleTheme = useCallback(() => {
+    setIsDarkMode(prev => !prev);
+  }, []);
+
+  return (
+    <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+function LanguageProvider({ children }: { children: React.ReactNode }) {
+  const [language, setLanguage] = useState<'th' | 'en'>('th');
+  const toggleLanguage = () => setLanguage(prev => prev === 'th' ? 'en' : 'th');
+
+  return (
+    <LanguageContext.Provider value={{ language, toggleLanguage }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+}
+
+function useTheme() {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+}
+
+function useLanguage() {
+  const context = useContext(LanguageContext);
+  if (context === undefined) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+  return context;
+}
+
+function SettingsMenu() {
+  const { isDarkMode, toggleTheme } = useTheme();
+  const { language, toggleLanguage } = useLanguage();
+
+  return (
+    <div className="flex items-center">
+      <div className="h-8 w-px bg-white/20 mx-2 hidden md:block" />
+      <div className="flex items-center space-x-1">
+        <button
+          onClick={toggleLanguage}
+          className="px-4 py-2 rounded-lg hover:bg-white/10 transition-all duration-300 flex items-center space-x-2"
+          aria-label={language === 'th' ? 'Switch to English' : 'เปลี่ยนเป็นภาษาไทย'}
+        >
+          <Languages className="w-5 h-5 text-white/90" />
+          <span className="text-sm font-medium text-white/90">
+            {language === 'th' ? 'EN' : 'TH'}
+          </span>
+        </button>
+        <button
+          onClick={toggleTheme}
+          className="px-4 py-2 rounded-lg hover:bg-white/10 transition-all duration-300 flex items-center space-x-2"
+          aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {isDarkMode ? (
+            <>
+              <Sun className="w-5 h-5 text-white/90" />
+              <span className="text-sm font-medium text-white/90">สว่าง</span>
+            </>
+          ) : (
+            <>
+              <Moon className="w-5 h-5 text-white/90" />
+              <span className="text-sm font-medium text-white/90">มืด</span>
+            </>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 interface Product {
   name: string;
@@ -62,6 +181,331 @@ interface CartModalProps {
   onAddToCart: (productType: string) => void;
 }
 
+interface ImageObject {
+  desktop: string;
+  mobile: string;
+}
+
+interface Slide {
+  image: ImageObject;
+  title?: string;
+  subtitle?: string;
+}
+
+interface NavItemProps {
+  icon: React.ReactNode;
+  text: string;
+  to: string;
+}
+
+interface QuickLinkProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}
+
+interface ServiceCardProps {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+// Add type definitions for translations
+interface ProductTranslations {
+  thermos: string;
+  shirt: string;
+  keychain: string;
+  pencilCase: string;
+}
+
+interface CategoryTranslations {
+  utilities: string;
+  fashion: string;
+  decoration: string;
+}
+
+interface CompanyInfo {
+  name: string;
+  phone: string;
+  email: string;
+}
+
+interface TranslationType {
+  // Navigation
+  home: string;
+  knowledge: string;
+  news: string;
+  forms: string;
+  contact: string;
+  about: string;
+  
+  // Header
+  companyName: string;
+  tagline: string;
+  
+  // Quick Links
+  taxPayment: string;
+  taxPaymentDesc: string;
+  complaint: string;
+  complaintDesc: string;
+  welfare: string;
+  welfareDesc: string;
+  contactUs: string;
+  contactDesc: string;
+
+  // Services
+  services: string;
+  taxCalculator: string;
+  taxCalculatorDesc: string;
+  taxChat: string;
+  taxChatDesc: string;
+  taxNearby: string;
+  taxNearbyDesc: string;
+
+  // News Ticker
+  recommended: string;
+  ticker1: string;
+  ticker2: string;
+  ticker3: string;
+
+  // OTOP Products
+  otopProducts: string;
+  otopDesc: string;
+  producedBy: string;
+  reviews: string;
+  orderProduct: string;
+  addToCart: string;
+  viewAllProducts: string;
+  hot: string;
+  preOrder: string;
+  new: string;
+
+  // Product Categories
+  category: CategoryTranslations;
+  products: ProductTranslations;
+
+  // News Section
+  operationalNews: string;
+  readMore: string;
+  viewAllPhotos: string;
+
+  // Footer
+  companyInfo: CompanyInfo;
+  workingHours: string;
+  workingDays: string;
+  workingTime: string;
+  closedDay: string;
+  relatedLinks: string;
+  aboutCompany: string;
+  procurement: string;
+  relatedWebsites: string;
+  college: string;
+  revenue: string;
+  accounting: string;
+  copyright: string;
+}
+
+const translations: Record<'th' | 'en', TranslationType> = {
+  th: {
+    // Navigation
+    home: "หน้าหลัก",
+    knowledge: "ความรู้",
+    news: "ข่าวสาร",
+    forms: "แบบฟอร์ม",
+    contact: "ติดต่อ",
+    about: "เกี่ยวกับ",
+    
+    // Header
+    companyName: "Smart Tax Inside",
+    tagline: "ระบบคำนวณภาษีอัจฉริยะ",
+    
+    // Quick Links
+    taxPayment: "ชำระภาษี",
+    taxPaymentDesc: "ชำระภาษีออนไลน์",
+    complaint: "ร้องเรียน",
+    complaintDesc: "แจ้งเรื่องร้องเรียน",
+    welfare: "สวัสดิการ",
+    welfareDesc: "ลงทะเบียนสวัสดิการ",
+    contactUs: "ติดต่อเรา",
+    contactDesc: "ติดต่อเจ้าหน้าที่",
+
+    // Services
+    services: "บริการของเรา",
+    taxCalculator: "คำนวณภาษี",
+    taxCalculatorDesc: "Function คำนวณภาษี 5 ประเภท\nเพื่อง่ายต่อการกรอกข้อมูล เพื่อขึ้น\nภาษีที่คุณต้องการ",
+    taxChat: "ตอบคำถามภาษี",
+    taxChatDesc: "คุณสามารถทำคำถามเกี่ยวกับภาษี\nได้ 24 ชั่วโมง",
+    taxNearby: "สรรพากรใกล้ฉัน",
+    taxNearbyDesc: "คุณจะสามารถค้นหาสรรพากรใกล้\nคุณได้โดยใช้ Function ที่มีด้วย\nสรรพากรใกล้ฉัน",
+
+    // News Ticker
+    recommended: "แนะนำ",
+    ticker1: "📢 ถามตอบแชทได้ 24 ชั่วโมง",
+    ticker2: "🎓 คำนวณภาษี 5 ประเภท",
+    ticker3: "📋 ปริ้นเอกสารออกมากรอกข้อมูล",
+
+    // OTOP Products
+    otopProducts: "ผลิตภัณฑ์ชุมชน OTOP",
+    otopDesc: "ผลิตภัณฑ์คุณภาพจากภูมิปัญญาท้องถิ่น สร้างรายได้สู่ชุมชน",
+    producedBy: "ผลิตโดย",
+    reviews: "รีวิว",
+    orderProduct: "สั่งซื้อสินค้า",
+    addToCart: "ตะกร้า",
+    viewAllProducts: "ดูสินค้าทั้งหมด",
+    hot: "ขายดี",
+    preOrder: "สั่งจอง",
+    new: "ใหม่",
+
+    // Product Categories
+    category: {
+      utilities: "ของใช้",
+      fashion: "เสื้อผ้าแฟชั่น",
+      decoration: "ตกแต่ง"
+    },
+
+    // Products
+    products: {
+      thermos: "แก้วเก็บความเย็น",
+      shirt: "เสื้อ",
+      keychain: "พวงกุญแจ",
+      pencilCase: "กระเป๋าดินสอ"
+    },
+
+    // News Section
+    operationalNews: "ข่าวสารเกี่ยวกับภาษี",
+    readMore: "อ่านเพิ่มเติม",
+    viewAllPhotos: "ดูภาพทั้งหมด",
+
+    // Footer
+    companyInfo: {
+      name: "Smart Tax Inside",
+      phone: "01-123-4567",
+      email: "STI@smarttaxinside.go.th"
+    },
+    workingHours: "เวลาทำการ",
+    workingDays: "จันทร์-วันเสาร์",
+    workingTime: "8:30 - 16:30 น.",
+    closedDay: "หยุดวันอาทิตย์",
+    relatedLinks: "ลิงก์ที่เกี่ยวข้อง",
+    aboutCompany: "เกี่ยวกับ Smart Tax Inside",
+    procurement: "จัดซื้อจัดจ้าง",
+    relatedWebsites: "เว็บไซต์ที่เกี่ยวข้อง",
+    college: "วิทยาลัยเทคโนโลยีเอเชียลพบุรี",
+    revenue: "กรมสรรพากร",
+    accounting: "สำนักงานบัญชี",
+    copyright: "© 2567 Smart Tax Side. สงวนลิขสิทธิ์."
+  },
+  en: {
+    // Navigation
+    home: "Home",
+    knowledge: "Knowledge",
+    news: "News",
+    forms: "Forms",
+    contact: "Contact",
+    about: "About",
+    
+    // Header
+    companyName: "Smart Tax Inside",
+    tagline: "Intelligent Tax Calculator System",
+    
+    // Quick Links
+    taxPayment: "Tax Payment",
+    taxPaymentDesc: "Pay Tax Online",
+    complaint: "Complaints",
+    complaintDesc: "Submit Complaints",
+    welfare: "Welfare",
+    welfareDesc: "Register for Welfare",
+    contactUs: "Contact",
+    contactDesc: "Contact Staff",
+
+    // Services
+    services: "Our Services",
+    taxCalculator: "Tax Calculator",
+    taxCalculatorDesc: "Calculate 5 types of taxes\nfor easy data entry\nfor your tax needs",
+    taxChat: "Tax Chat Support",
+    taxChatDesc: "You can ask tax-related questions\n24 hours a day",
+    taxNearby: "Tax Office Nearby",
+    taxNearbyDesc: "Find tax offices near you\nusing our location-based\nsearch function",
+
+    // News Ticker
+    recommended: "Recommended",
+    ticker1: "📢 Chat support available 24/7",
+    ticker2: "🎓 Calculate 5 types of taxes",
+    ticker3: "📋 Print documents for data entry",
+
+    // OTOP Products
+    otopProducts: "OTOP Community Products",
+    otopDesc: "Quality products from local wisdom, generating income for communities",
+    producedBy: "Produced by",
+    reviews: "reviews",
+    orderProduct: "Order Product",
+    addToCart: "Add to Cart",
+    viewAllProducts: "View All Products",
+    hot: "HOT",
+    preOrder: "Pre-order",
+    new: "New",
+
+    // Product Categories
+    category: {
+      utilities: "Utilities",
+      fashion: "Fashion",
+      decoration: "Decoration"
+    },
+
+    // Products
+    products: {
+      thermos: "Thermos Cup",
+      shirt: "T-Shirt",
+      keychain: "Keychain",
+      pencilCase: "Pencil Case"
+    },
+
+    // News Section
+    operationalNews: "Tax News",
+    readMore: "Read More",
+    viewAllPhotos: "View All Photos",
+
+    // Footer
+    companyInfo: {
+      name: "Smart Tax Inside",
+      phone: "01-123-4567",
+      email: "STI@smarttaxinside.go.th"
+    },
+    workingHours: "Working Hours",
+    workingDays: "Monday-Saturday",
+    workingTime: "8:30 AM - 4:30 PM",
+    closedDay: "Closed on Sunday",
+    relatedLinks: "Related Links",
+    aboutCompany: "About Smart Tax Inside",
+    procurement: "Procurement",
+    relatedWebsites: "Related Websites",
+    college: "Asia Lopburi Technology College",
+    revenue: "Revenue Department",
+    accounting: "Accounting Office",
+    copyright: "© 2024 Smart Tax Side. All rights reserved."
+  }
+};
+
+// Update product handling
+function getProductTranslation(product: any, language: 'th' | 'en', key: keyof ProductTranslations) {
+  return translations[language].products[key];
+}
+
+function getCategoryTranslation(category: keyof CategoryTranslations, language: 'th' | 'en') {
+  return translations[language].category[category];
+}
+
+// Update award translation function to handle only string values
+function getAwardTranslation(award: string, language: 'th' | 'en'): string {
+  const stringOnlyKeys: (keyof TranslationType)[] = ['hot', 'new', 'preOrder'];
+  const awardKey = award.toLowerCase() as typeof stringOnlyKeys[number];
+  
+  if (stringOnlyKeys.includes(awardKey)) {
+    return translations[language][awardKey] as string;
+  }
+  return award;
+}
+
 function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -72,39 +516,37 @@ function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [cart, setCart] = useState<CartItem[]>([]);
+  const { isDarkMode } = useTheme();
+  const { language } = useLanguage();
 
-  const slides = [
+  const slides: Slide[] = [
+    {
+      image: {
+        desktop: "/src/img/public1/sti1.png",
+        mobile: "/src/img/public1/sti1.png"
+      },
+     
+    },
+    {
+      image: {
+        desktop: "/src/img/public1/sti2.png",
+        mobile: "/src/img/public1/sti2.png"
+      },
+      
+    },
+    {
+      image: {
+        desktop: "/src/img/public1/v2.png",
+        mobile: "/src/img/v2.jpg"
+      },
+     
+    },
     {
       image: {
         desktop: "/src/img/logo.png",
         mobile: "/src/img/moblie.jpg"
       },
-      title: "ยินดีต้อนรับสู่ อบต.สุขสันต์หรรษา",
-      subtitle: "บริการประชาชนด้วยใจ พัฒนาท้องถิ่นอย่างยั่งยืน"
-    },
-    {
-      image: {
-        desktop: "/src/img/public1/IMG_0662.png",
-        mobile: "/src/img/logo.png"
-      },
-      title: "พัฒนาชุมชนอย่างยั่งยืน",
-      subtitle: "สร้างสังคมที่น่าอยู่ เพื่อคุณภาพชีวิตที่ดีขึ้น"
-    },
-    {
-      image: {
-        desktop: "/src/img/logo.png",
-        mobile: "/src/img/moblie.jpg"
-      },
-      title: "kuy",
-      subtitle: "สืบสานประเพณีไทย ร่วมสร้างอนาคตที่มั่นคง"
-    },
-    {
-      image: {
-        desktop: "/src/img/logo.png",
-        mobile: "/src/img/moblie.jpg"
-      },
-      title: "อนุรักษ์วัฒนธรรมท้องถิ่น",
-      subtitle: "สืบสานประเพณีไทย ร่วมสร้างอนาคตที่มั่นคง"
+    
     }
   ];
 
@@ -148,7 +590,7 @@ function HomePage() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const getImageForDevice = (imageObj) => {
+  const getImageForDevice = (imageObj: ImageObject) => {
     return windowWidth < 768 ? imageObj.mobile : imageObj.desktop;
   };
 
@@ -257,148 +699,303 @@ function HomePage() {
     }
   };
 
-  return (
-    
-    <div className="min-h-screen bg-gray-50">
-        
+  // Update the navigation items with translations
+  const navItems = [
+    { to: "/", icon: <Home size={24} />, text: translations[language].home, group: "main" },
+    { to: "/tax-knowledge", icon: <BookOpen size={24} />, text: translations[language].knowledge, group: "info" },
+    { to: "/tax-news", icon: <Newspaper size={24} />, text: translations[language].news, group: "info" },
+    { to: "/tax-forms", icon: <FileText size={24} />, text: translations[language].forms, group: "info" },
+    { to: "/contact", icon: <Phone size={24} />, text: translations[language].contact, group: "support" },
+    { to: "/about", icon: <Info size={24} />, text: translations[language].about, group: "support" }
+  ];
 
+  // Update the services section with translations
+  const services = [
+    {
+      to: "/welfare",
+      icon: "/src/img/icons/m1.png",
+      title: translations[language].taxCalculator,
+      alt: translations[language].taxCalculator,
+      description: translations[language].taxCalculatorDesc
+    },
+    {
+      to: "/chat",
+      icon: "/src/img/icons/m2.png",
+      title: translations[language].taxChat,
+      alt: translations[language].taxChat,
+      description: translations[language].taxChatDesc
+    },
+    {
+      to: "/nearby",
+      icon: "/src/img/icons/m3.png",
+      title: translations[language].taxNearby,
+      alt: translations[language].taxNearby,
+      description: translations[language].taxNearbyDesc
+    }
+  ];
+
+  return (
+    <div className={`min-h-screen transition-all duration-300 ${
+      isDarkMode 
+        ? 'bg-gray-900 text-gray-100' 
+        : 'bg-gray-50 text-gray-900'
+    }`}>
       {/* Navigation */}
-      <nav className="bg-blue-800 text-white shadow-lg">
+      <nav 
+        className={`fixed top-0 left-0 right-0 transition-all duration-300 ${
+          isDarkMode 
+            ? 'bg-gray-800/95 backdrop-blur-sm border-b border-gray-700' 
+            : 'bg-gradient-to-b from-customNavBlue to-customNavBlueDark'
+        } text-white shadow-lg z-50`}
+      >
         <div className="container mx-auto px-4">
-         
-          <div className={`${isMenuOpen ? "block" : "hidden"} md:block`}>
-            <ul className="md:flex md:space-x-1flex items-center justify-between">
-            <img src={logo}
-          className="w-16 h-16 object-contain flex items-center space-x-3" />
-              <NavItem to="/" icon={<Home size={18} />} text="หน้าหลัก" />
-              <NavItem
-                to="/about"
-                icon={<Info size={18} />}
-                text="เกี่ยวกับเรา"
-              />
-              <NavItem
-                to="/services"
-                icon={<FileText size={18} />}
-                text="เกมตอบคำถาม"
-              />
-                 <NavItem
-                to="/dashboard"
-                icon={<LayoutDashboard size={18} />}
-                text="สรุปผลการดำเนินงาน"
-              />
-              
-              <NavItem
-                to="/news"
-                icon={<Newspaper size={18} />}
-                text="ความรู้เกี่ยวกับภาษี"
-              />
-              <NavItem
-                to="/community"
-                icon={<HandHeart size={18} />}
-                text="พัฒนาชุมชน"
-              />
-              <NavItem
+              {/* Mobile Menu Button and Logo */}
+              <div className="md:hidden flex items-center justify-between py-4">
+                <div className="flex items-center space-x-3">
+                  <img 
+                    src={logo} 
+                    alt="Smart Tax Inside" 
+                    className="w-12 h-12 object-contain"
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-xl font-bold text-white tracking-wide">Smart Tax Inside</span>
+                    <span className="text-sm text-white/90 font-light tracking-wider">ระบบคำนวณภาษีอัจฉริยะ</span>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <SettingsMenu />
+                  <button
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    className="text-white focus:outline-none group relative w-10 h-10 flex items-center justify-center"
+                    aria-label="Toggle menu"
+                  >
+                    <div className="relative w-6 h-5">
+                      <span className={`absolute w-full h-0.5 bg-white transform transition-all duration-300 ease-in-out ${isMenuOpen ? 'rotate-45 translate-y-2' : '-translate-y-2'}`}></span>
+                      <span className={`absolute w-full h-0.5 bg-white transform transition-all duration-300 ease-in-out ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
+                      <span className={`absolute w-full h-0.5 bg-white transform transition-all duration-300 ease-in-out ${isMenuOpen ? '-rotate-45 translate-y-2' : 'translate-y-2'}`}></span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* Mobile Menu */}
+              <div 
+                className={`md:hidden fixed inset-x-0 top-[76px] z-40 transition-all duration-300 ease-in-out transform ${
+                  isMenuOpen 
+                    ? 'translate-x-0 opacity-100' 
+                    : 'translate-x-full opacity-0'
+                }`}
+              >
+                <div className="bg-gradient-to-b from-customNavBlue/95 to-customNavBlueDark/95 backdrop-blur-lg rounded-b-lg shadow-lg max-h-[calc(100vh-76px)] overflow-y-auto">
+                  <ul className="py-2 px-2 grid grid-cols-3 gap-2">
+                    {navItems.map((item, index) => (
+                      <li key={index}>
+                        <Link
+                          to={item.to}
+                          className="flex flex-col items-center p-3 rounded-lg transition-all duration-300 hover:bg-white/10 relative overflow-hidden group"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <span className="text-white/90 transition-transform duration-300 group-hover:scale-110 group-hover:text-white mb-1">
+                            {item.icon}
+                          </span>
+                          <span className="font-medium text-xs tracking-wide transition-all duration-300 group-hover:text-white text-white/90 text-center whitespace-nowrap relative">
+                            {item.text}
+                            <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-white transform -translate-x-1/2 transition-all duration-300 group-hover:w-full opacity-0 group-hover:opacity-100"></span>
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Desktop Menu */}
+              <div className="hidden md:block">
+                <div className="flex items-center justify-between py-2">
+                  {/* Logo and Title */}
+                  <div className="flex items-center space-x-6">
+                    <img 
+                      src={logo} 
+                      alt="Smart Tax Inside" 
+                      className="w-14 h-14 object-contain"
+                    />
+                    <div className="flex flex-col">
+                      <span className="text-2xl font-bold text-white tracking-wide bg-gradient-to-r from-white to-white/80 bg-clip-text">
+                        Smart Tax Inside
+                      </span>
+                      <span className="text-sm text-white/80 font-light tracking-wider">
+                        ระบบคำนวณภาษีอัจฉริยะ
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Menu and Settings */}
+                  <div className="flex items-center">
+                    {/* Menu Groups */}
+                    <nav className="flex items-center mr-4">
+                      {/* Main Group */}
+                      <div className="flex items-center px-2">
+                        <Link
+                          to="/"
+                          className="relative px-4 py-2 rounded-lg group hover:bg-white/10 transition-all duration-300"
+                        >
+                          <span className="text-sm font-medium text-white/90 group-hover:text-white transition-colors duration-300">
+                            หน้าหลัก
+                          </span>
+                          <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-white transform -translate-x-1/2 transition-all duration-300 group-hover:w-4/5 opacity-0 group-hover:opacity-100"></span>
+                        </Link>
+                      </div>
+
+                      <div className="h-8 w-px bg-white/20 mx-2" />
+
+                      {/* Information Group */}
+                      <div className="flex items-center space-x-1 px-2">
+                        <Link
+                          to="/tax-knowledge"
+                          className="relative px-4 py-2 rounded-lg group hover:bg-white/10 transition-all duration-300"
+                        >
+                          <span className="text-sm font-medium text-white/90 group-hover:text-white transition-colors duration-300">
+                            ความรู้
+                          </span>
+                          <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-white transform -translate-x-1/2 transition-all duration-300 group-hover:w-4/5 opacity-0 group-hover:opacity-100"></span>
+                        </Link>
+                        <Link
+                          to="/tax-news"
+                          className="relative px-4 py-2 rounded-lg group hover:bg-white/10 transition-all duration-300"
+                        >
+                          <span className="text-sm font-medium text-white/90 group-hover:text-white transition-colors duration-300">
+                            ข่าวสาร
+                          </span>
+                          <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-white transform -translate-x-1/2 transition-all duration-300 group-hover:w-4/5 opacity-0 group-hover:opacity-100"></span>
+                        </Link>
+                        <Link
+                          to="/tax-forms"
+                          className="relative px-4 py-2 rounded-lg group hover:bg-white/10 transition-all duration-300"
+                        >
+                          <span className="text-sm font-medium text-white/90 group-hover:text-white transition-colors duration-300">
+                            แบบฟอร์ม
+                          </span>
+                          <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-white transform -translate-x-1/2 transition-all duration-300 group-hover:w-4/5 opacity-0 group-hover:opacity-100"></span>
+                        </Link>
+                      </div>
+
+                      <div className="h-8 w-px bg-white/20 mx-2" />
+
+                      {/* Support Group */}
+                      <div className="flex items-center space-x-1 px-2">
+                        <Link
                 to="/contact"
-                icon={<MessageCircle size={18} />}
-                text="ติดต่อเรา"
-              />
-              <NavItem
-                to="/staff"
-                icon={<UserCircle size={18} />}
-                text="ผู้จัดทำ"
-              />
-                 <NavItem
-                to="/documents"
-                icon={<Newspaper size={18} />}
-                text="ดาวโหลดเอกสาร"
-              />
-           
-            </ul>
+                          className="relative px-4 py-2 rounded-lg group hover:bg-white/10 transition-all duration-300"
+                        >
+                          <span className="text-sm font-medium text-white/90 group-hover:text-white transition-colors duration-300">
+                            ติดต่อ
+                          </span>
+                          <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-white transform -translate-x-1/2 transition-all duration-300 group-hover:w-4/5 opacity-0 group-hover:opacity-100"></span>
+                        </Link>
+                        <Link
+                          to="/about"
+                          className="relative px-4 py-2 rounded-lg group hover:bg-white/10 transition-all duration-300"
+                        >
+                          <span className="text-sm font-medium text-white/90 group-hover:text-white transition-colors duration-300">
+                            เกี่ยวกับ
+                          </span>
+                          <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-white transform -translate-x-1/2 transition-all duration-300 group-hover:w-4/5 opacity-0 group-hover:opacity-100"></span>
+                        </Link>
+                      </div>
+                    </nav>
+
+                    {/* Settings Menu */}
+                    <SettingsMenu />
+                  </div>
+                </div>
           </div>
         </div>
       </nav>
 
+          {/* Spacer to prevent content from going under fixed nav */}
+          <div className="h-[76px] md:h-[80px]"></div>
+
 {/* Hero Section with Image Slider */}
-<div className="relative h-[500px] sm:h-[600px] md:h-[720px] lg:h-[900px] xl:h-[600px] overflow-hidden">
+          <div className="relative w-full overflow-hidden">
         {slides.map((slide, index) => (
           <div
             key={index}
-            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-              currentSlide === index ? "opacity-100" : "opacity-0"
+                className={`transition-opacity duration-1000 ease-in-out ${
+                  currentSlide === index ? "opacity-100" : "opacity-0 h-0 overflow-hidden"
             }`}
           >
             <img
               src={getImageForDevice(slide.image)}
               alt={slide.title}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-black/40" />
+                  className="w-full h-auto object-contain"
+                />
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 bg-gradient-to-b from-black/50 to-transparent">
+                  <h2 className="text-2xl md:text-4xl font-bold text-white mb-2 md:mb-4 drop-shadow-lg">
+                    {slide.title}
+                  </h2>
+                  <p className="text-sm md:text-lg text-white/90 max-w-xl md:max-w-2xl drop-shadow-lg">
+                    {slide.subtitle}
+                  </p>
+                </div>
           </div>
         ))}
         
-        {/* Slider Navigation */}
-        <div className="absolute inset-0 flex items-center justify-between px-4 z-10">
+            <div className="absolute inset-x-0 top-1/2 transform -translate-y-1/2 flex items-center justify-between px-2 md:px-4 z-10">
           <button 
             type="button"
             onClick={prevSlide}
-            className="p-4 rounded-full bg-black/40 backdrop-blur-sm text-white hover:bg-black/60 transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50 cursor-pointer active:scale-95"
+                className="p-2 md:p-3 rounded-full bg-black/40 backdrop-blur-sm text-white hover:bg-black/60 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-white/50"
             aria-label="Previous slide"
           >
-            <ChevronLeft size={32} />
+                <ChevronLeft className="w-5 h-5 md:w-7 md:h-7" />
           </button>
           <button 
             type="button"
             onClick={nextSlide}
-            className="p-4 rounded-full bg-black/40 backdrop-blur-sm text-white hover:bg-black/60 transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50 cursor-pointer active:scale-95"
+                className="p-2 md:p-3 rounded-full bg-black/40 backdrop-blur-sm text-white hover:bg-black/60 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-white/50"
             aria-label="Next slide"
           >
-            <ChevronRight size={32} />
+                <ChevronRight className="w-5 h-5 md:w-7 md:h-7" />
           </button>
         </div>
         
-        {/* Slider Indicators */}
-        <div className="absolute bottom-10 left-0 right-0 flex justify-center space-x-2">
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
           {slides.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentSlide(index)}
-              className={`w-3 h-3 rounded-full ${
-                currentSlide === index ? "bg-white" : "bg-white/50"
+                  className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full transition-colors duration-300 ${
+                    currentSlide === index ? "bg-white" : "bg-white/50 hover:bg-white/70"
               }`}
+                  aria-label={`Go to slide ${index + 1}`}
             />
           ))}
-        </div>
-        
-        {/* Slide Content */}
-        <div className="relative h-full flex items-center justify-center">
-          <div className="text-center text-white space-y-6 px-4">
-            <h2 className="text-5xl font-bold mb-4 text-shadow-lg">
-              {slides[currentSlide].title}
-            </h2>
-            <p className="text-xl text-shadow">
-              {slides[currentSlide].subtitle}
-            </p>
-          </div>
         </div>
       </div>
 
       {/* News Ticker */}
-      <div className="bg-primary-50 py-2 overflow-hidden">
+      <div className={`py-2 overflow-hidden ${
+        isDarkMode ? 'bg-gray-800' : 'bg-primary-50'
+      }`}>
         <div className="container mx-auto px-4">
           <div className="flex items-center">
-            <span className="bg-primary-600 text-white px-4 py-1 rounded-full text-sm font-semibold mr-4">
-              แนะนำ
+            <span className={`px-4 py-1 rounded-full text-sm font-semibold mr-4 ${
+              isDarkMode ? 'bg-blue-600 text-white' : 'bg-primary-600 text-white'
+            }`}>
+              {translations[language].recommended}
             </span>
             <div className="overflow-hidden flex-1">
-              <div className="whitespace-nowrap animate-ticker">
+              <div className={`whitespace-nowrap animate-ticker ${
+                isDarkMode ? 'text-gray-300' : 'text-gray-600'
+              }`}>
                 <span className="inline-block px-4">
-                  📢 ถามตอบแชทได้ 24 ชั่วโมง
+                  {translations[language].ticker1}
                 </span>
                 <span className="inline-block px-4">
-                  🎓 คำนวนภาษี 5 ประเภท
+                  {translations[language].ticker2}
                 </span>
                 <span className="inline-block px-4">
-                  📋 ปริ้นเอสารออกมากรอกข้อมูล
+                  {translations[language].ticker3}
                 </span>
               </div>
             </div>
@@ -407,35 +1004,39 @@ function HomePage() {
       </div>
 
       {/* Quick Links */}
-      <div className="bg-white shadow-md">
+      <div className={`transition-all duration-300 ${
+        isDarkMode 
+          ? 'bg-gray-800 shadow-lg shadow-gray-900/50' 
+          : 'bg-white shadow-md'
+      }`}>
         <div className="container mx-auto px-4 py-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Link to="/tax-payment">
               <QuickLink
                 icon={<FileText className="w-6 h-6" />}
-                title="ชำระภาษี"
-                description="ชำระภาษีออนไลน์"
+                title={translations[language].taxPayment}
+                description={translations[language].taxPaymentDesc}
               />
             </Link>
             <Link to="/complaint">
               <QuickLink
                 icon={<Users2 className="w-6 h-6" />}
-                title="ร้องเรียน"
-                description="แจ้งเรื่องร้องเรียน"
+                title={translations[language].complaint}
+                description={translations[language].complaintDesc}
               />
             </Link>
             <Link to="">
               <QuickLink
                 icon={<HandHeart className="w-6 h-6" />}
-                title="สวัสดิการ"
-                description="ลงทะเบียนสวัสดิการ"
+                title={translations[language].welfare}
+                description={translations[language].welfareDesc}
               />
             </Link>
             <Link to="/contact">
               <QuickLink
                 icon={<MessageCircle className="w-6 h-6" />}
-                title="ติดต่อ"
-                description="ติดต่อเจ้าหน้าที่"
+                title={translations[language].contactUs}
+                description={translations[language].contactDesc}
               />
             </Link>
           </div>
@@ -443,62 +1044,64 @@ function HomePage() {
       </div>
 
       {/* Services Section */}
-      <div className="container mx-auto px-4 py-16">
-        <h2 className="text-3xl font-bold text-center mb-12">บริการของเรา</h2>
+      <div className={`container mx-auto px-4 py-16 transition-all duration-300 ${
+        isDarkMode ? 'text-gray-100' : 'text-gray-900'
+      }`}>
+        <h2 className="text-3xl font-bold text-center mb-12">
+          {translations[language].services}
+        </h2>
         <div className="grid md:grid-cols-3 gap-8">
-        <Link to="/welfare">
-        <ServiceCard
-  icon={
-    <img
-      src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLWZpbGUtcGVuLWljb24gbHVjaWRlLWZpbGUtcGVuIj48cGF0aCBkPSJNMTIuNSAyMkgxOGEyIDIgMCAwIDAgMi0yVjdsLTUtNUg2YTIgMiAwIDAgMC0yIDJ2OS41Ii8+PHBhdGggZD0iTTE0IDJ2NGEyIDIgMCAwIDAgMiAyaDQiLz48cGF0aCBkPSJNMTMuMzc4IDE1LjYyNmExIDEgMCAxIDAtMy4wMDQtMy4wMDRsLTUuMDEgNS4wMTJhMiAyIDAgMCAwLS41MDYuODU0bC0uODM3IDIuODdhLjUuNSAwIDAgMCAuNjIuNjJsMi44Ny0uODM3YTIgMiAwIDAgMCAuODU0LS41MDZ6Ii8+PC9zdmc+"
-      alt="คำนวนภาษี"
-      className="w-8 h-8"
-    />
-  }
-  title="คำนวนภาษี"
-  description="คำนวนภาษี 6 ประเภท"
-/>
+          {services.map((service, index) => (
+            <Link key={index} to={service.to} className="block group">
+              <div className={`h-[450px] rounded-lg p-8 text-center transition-all duration-300 flex flex-col ${
+                isDarkMode
+                  ? 'bg-gray-800 shadow-lg shadow-gray-900/50 group-hover:shadow-gray-900/70'
+                  : 'bg-white shadow-lg group-hover:shadow-xl'
+              }`}>
+                <div className="flex-shrink-0 flex justify-center items-center h-64 mb-6">
+                  <img
+                    src={service.icon}
+                    alt={service.alt}
+                    className="w-56 h-56 object-contain transition-transform duration-300 group-hover:scale-110"
+                  />
+                </div>
+                <h3 className={`text-2xl font-bold mb-4 ${
+                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                }`}>
+                  {service.title}
+                </h3>
+                <p className={`text-sm ${
+                  isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                } leading-relaxed flex-grow`}>
+                  {service.description}
+                </p>
+              </div>
           </Link>
-          <ServiceCard
-  icon={
-    <img
-      src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLW1lc3NhZ2VzLXNxdWFyZS1pY29uIGx1Y2lkZS1tZXNzYWdlcy1zcXVhcmUiPjxwYXRoIGQ9Ik0xNCA5YTIgMiAwIDAgMS0yIDJINmwtNCA0VjRhMiAyIDAgMCAxIDItMmg4YTIgMiAwIDAgMSAyIDJ6Ii8+PHBhdGggZD0iTTE4IDloMmEyIDIgMCAwIDEgMiAydjExbC00LTRoLTZhMiAyIDAgMCAxLTItMnYtMSIvPjwvc3ZnPg=="
-      alt="แชทตอบคำถาม"
-      className="w-8 h-8"
-    />
-  }
-  title="แชทตอบคำถาม"
-  description="แชทให้คำตอบเกี่ยวกับภาษี 24 ชั่วโมง"
-/>
-          <ServiceCard
-  icon={
-    <img
-      src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLW1hcC1waW5uZWQtaWNvbiBsdWNpZGUtbWFwLXBpbm5lZCI+PHBhdGggZD0iTTE4IDhjMCAzLjYxMy0zLjg2OSA3LjQyOS01LjM5MyA4Ljc5NWExIDEgMCAwIDEtMS4yMTQgMEM5Ljg3IDE1LjQyOSA2IDExLjYxMyA2IDhhNiA2IDAgMCAxIDEyIDAiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjgiIHI9IjIiLz48cGF0aCBkPSJNOC43MTQgMTRoLTMuNzFhMSAxIDAgMCAwLS45NDguNjgzbC0yLjAwNCA2QTEgMSAwIDAgMCAzIDIyaDE4YTEgMSAwIDAgMCAuOTQ4LTEuMzE2bC0yLTZhMSAxIDAgMCAwLS45NDktLjY4NGgtMy43MTIiLz48L3N2Zz4="
-      alt="สรรพากรใกล้ฉัน"
-      className="w-8 h-8"
-    />
-  }
-  title="สรรพากรใกล้ฉัน"
-  description="ค้นหาสรรพากรใกล้คุณ เพื่อง่ายต่อการค้นหา"
-/>
+          ))}
         </div>
       </div>
 
      {/* OTOP Products Section */}
-      <div className="bg-gradient-to-b from-white to-primary-50 py-16">
+      <div className={`py-16 transition-all duration-300 ${
+        isDarkMode
+          ? 'bg-gray-800'
+          : 'bg-gradient-to-b from-white to-primary-50'
+      }`}>
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 
-              className={`text-3xl font-bold text-gray-900 mb-4 ${showElements ? 'animate-tiktok-reveal' : 'opacity-0'}`}
+            <h2 className={`text-3xl font-bold mb-4 ${
+              isDarkMode ? 'text-gray-100' : 'text-gray-900'
+            } ${showElements ? 'animate-tiktok-reveal' : 'opacity-0'}`}
               style={{ animationDelay: '200ms' }}
             >
-              ผลิตภัณฑ์ชุมชน OTOP
+              {translations[language].otopProducts}
             </h2>
-            <p 
-              className={`text-gray-600 max-w-2xl mx-auto ${showElements ? 'animate-tiktok-reveal' : 'opacity-0'}`}
+            <p className={`max-w-2xl mx-auto ${
+              isDarkMode ? 'text-gray-300' : 'text-gray-600'
+            } ${showElements ? 'animate-tiktok-reveal' : 'opacity-0'}`}
               style={{ animationDelay: '400ms' }}
             >
-              ผลิตภัณฑ์คุณภาพจากภูมิปัญญาท้องถิ่น สร้างรายได้สู่ชุมชน
+              {translations[language].otopDesc}
             </p>
           </div>
 
@@ -506,56 +1109,80 @@ function HomePage() {
             {localProducts.map((product, index) => (
               <div 
                 key={index} 
-                className={`bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 ${showElements ? 'animate-pop-up' : 'opacity-0'}`}
+                className={`rounded-xl overflow-hidden transition-all duration-300 ${
+                  isDarkMode
+                    ? 'bg-gray-800 shadow-lg shadow-gray-900/50 hover:shadow-gray-900/70'
+                    : 'bg-white shadow-lg hover:shadow-xl'
+                }`}
                 style={{ animationDelay: `${600 + (index * 200)}ms` }}
               >
                 <div className="relative">
                   <img 
                     src={product.image} 
-                    alt={product.name} 
+                    alt={getProductTranslation(product, language, product.name as keyof ProductTranslations)} 
                     className="w-full h-48 object-cover"
                   />
                   <div className="absolute top-4 right-4">
                     <div className="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
-                      {product.awards[0]}
+                      {getAwardTranslation(product.awards[0], language)}
                     </div>
                   </div>
                 </div>
-                <div className="p-6">
-                  <div className="text-sm text-primary-600 font-medium mb-2">
-                    {product.category}
+                <div className={`p-6 ${
+                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                }`}>
+                  <div className={`text-sm font-medium mb-2 ${
+                    isDarkMode ? 'text-blue-400' : 'text-primary-600'
+                  }`}>
+                    {getCategoryTranslation(product.category as keyof CategoryTranslations, language)}
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    {product.name}
+                  <h3 className={`text-xl font-semibold mb-2 ${
+                    isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                  }`}>
+                    {getProductTranslation(product, language, product.name as keyof ProductTranslations)}
                   </h3>
-                  <p className="text-gray-600 text-sm mb-4">
-                    ผลิตโดย: {product.producer}
+                  <p className={`text-sm mb-4 ${
+                    isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                  }`}>
+                    {translations[language].producedBy}: {product.producer}
                   </p>
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center">
                       <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="ml-1 text-gray-600">
-                        {product.rating} ({product.reviews} รีวิว)
+                      <span className={`ml-1 ${
+                        isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                      }`}>
+                        {product.rating} ({product.reviews} {translations[language].reviews})
                       </span>
                     </div>
-                    <span className="text-xl font-bold text-primary-600">
+                    <span className={`text-xl font-bold ${
+                      isDarkMode ? 'text-blue-400' : 'text-primary-600'
+                    }`}>
                       ฿{product.price}
                     </span>
                   </div>
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleOrderClick(product)}
-                      className="flex-1 bg-primary-600 text-white py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center justify-center"
+                      className={`flex-1 py-2 rounded-lg transition-colors flex items-center justify-center ${
+                        isDarkMode 
+                          ? 'bg-blue-600 text-white hover:bg-blue-700'
+                          : 'bg-primary-600 text-white hover:bg-primary-700'
+                      }`}
                     >
                       <ShoppingBag className="w-4 h-4 mr-2" />
-                      สั่งซื้อสินค้า
+                      {translations[language].orderProduct}
                     </button>
                     <button
                       onClick={() => handleCartClick(product)}
-                      className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center"
+                      className={`flex-1 py-2 rounded-lg transition-colors flex items-center justify-center ${
+                        isDarkMode 
+                          ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
                     >
                       <ShoppingCart className="w-4 h-4 mr-2" />
-                      ตะกร้า
+                      {translations[language].addToCart}
                     </button>
                   </div>
                 </div>
@@ -564,8 +1191,12 @@ function HomePage() {
           </div>
 
           <div className="text-center mt-12">
-            <button className="inline-flex items-center px-6 py-3 border-2 border-primary-600 text-primary-600 font-semibold rounded-lg hover:bg-primary-600 hover:text-white transition-colors">
-              ดูสินค้าทั้งหมด
+            <button className={`inline-flex items-center px-6 py-3 rounded-lg transition-colors ${
+              isDarkMode 
+                ? 'border-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white' 
+                : 'border-2 border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white'
+            }`}>
+              {translations[language].viewAllProducts}
               <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -575,12 +1206,22 @@ function HomePage() {
       </div>
 
       {/* Operational News Section */}
-      <div className="bg-white py-16">
+      <div className={`py-16 transition-all duration-300 ${
+        isDarkMode
+          ? 'bg-gray-800 text-gray-100'
+          : 'bg-white text-gray-900'
+      }`}>
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">ข่าวสารเกี่ยวกับถาษี</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">
+            {translations[language].operationalNews}
+          </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {operationalNews.map((news, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300">
+              <div key={index} className={`rounded-xl overflow-hidden transition-all duration-300 ${
+                isDarkMode
+                  ? 'bg-gray-800 shadow-lg shadow-gray-900/50 hover:shadow-gray-900/70'
+                  : 'bg-white shadow-lg hover:shadow-xl'
+              }`}>
                 <div className="relative">
                   <img 
                     src={news.image} 
@@ -594,7 +1235,9 @@ function HomePage() {
                     </div>
                   </div>
                 </div>
-                <div className="p-6">
+                <div className={`p-6 ${
+                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                }`}>
                   <h3 className="text-xl font-semibold mb-2 text-gray-900 line-clamp-2">
                     {news.title}
                   </h3>
@@ -608,10 +1251,10 @@ function HomePage() {
                   <div className="flex justify-between items-center">
                     <div className="flex items-center text-sm text-gray-500">
                       <Camera className="w-4 h-4 mr-2" />
-                      <span>ดูภาพทั้งหมด</span>
+                      <span>{translations[language].viewAllPhotos}</span>
                     </div>
                     <button className="text-blue-600 hover:text-blue-700 font-semibold text-sm">
-                      อ่านเพิ่มเติม →
+                      {translations[language].readMore} →
                     </button>
                   </div>
                 </div>
@@ -622,63 +1265,65 @@ function HomePage() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-blue-900 text-white py-8">
-        <div className="container mx-auto px-4">
+      <footer className={`transition-all duration-300 ${
+        isDarkMode
+          ? 'bg-gray-900 text-gray-100 border-t border-gray-800'
+          : 'bg-blue-900 text-white'
+      }`}>
+        <div className="container mx-auto px-4 py-8">
           <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="text-xl font-semibold mb-4">ติดต่อเรา</h3>
+            <div className={isDarkMode ? 'text-gray-300' : 'text-gray-100'}>
+              <h3 className="text-xl font-semibold mb-4">
+                {translations[language].companyInfo.name}
+              </h3>
               <div className="space-y-2">
                 <p className="flex items-center">
-                  <Building2 className="w-4 h-4 mr-2" /> Smart Tax Inside
+                  <Phone className="w-4 h-4 mr-2" /> {translations[language].companyInfo.phone}
                 </p>
                 <p className="flex items-center">
-                  <Phone className="w-4 h-4 mr-2" /> 01-123-4567
-                </p>
-                <p className="flex items-center">
-                  <Mail className="w-4 h-4 mr-2" /> STI@smatltaxinside.go.th
+                  <Mail className="w-4 h-4 mr-2" /> {translations[language].companyInfo.email}
                 </p>
               </div>
             </div>
-            <div>
-              <h3 className="text-xl font-semibold mb-4">เวลาทำการ</h3>
+            <div className={isDarkMode ? 'text-gray-300' : 'text-gray-100'}>
+              <h3 className="text-xl font-semibold mb-4">
+                {translations[language].workingHours}
+              </h3>
+              <h3 className="text-xl font-semibold mb-4">{translations[language].workingDays}</h3>
               <div className="space-y-2">
                 <p className="flex items-center">
-                  <Clock className="w-4 h-4 mr-2" /> จันทร์-วันเสาร์
+                  <Clock className="w-4 h-4 mr-2" /> {translations[language].workingTime}
                 </p>
-                <p className="ml-6">8:30 - 16:30 น.</p>
-                <p className="flex items-center">
-                  <Calendar className="w-4 h-4 mr-2" /> หยุดวันอาทิตย์
-                 
-                </p>
+                <p className="ml-6">{translations[language].closedDay}</p>
               </div>
             </div>
-            <div>
-              <h3 className="text-xl font-semibold mb-4">ลิงก์ที่เกี่ยวข้อง</h3>
+            <div className={isDarkMode ? 'text-gray-300' : 'text-gray-100'}>
+              <h3 className="text-xl font-semibold mb-4">{translations[language].relatedLinks}</h3>
               <ul className="space-y-2">
                 <li>
                   <Link to="/about" className="hover:text-blue-200">
-                    เกี่ยวกับ Smart Tax Inside
+                    {translations[language].aboutCompany}
                   </Link>
                 </li>
                 <li>
                   <Link to="/services" className="hover:text-blue-200">
-                    ให้ความรู้และความสะดวกกับผู้ใช้งาน
+                    {translations[language].services}
                   </Link>
                 </li>
                 <li>
-                  <Link to="/services" className="hover:text-blue-200">
-                    จัดซื้อจัดจ้าง
+                  <Link to="/procurement" className="hover:text-blue-200">
+                    {translations[language].procurement}
                   </Link>
                 </li>
                 <li>
                   <Link to="/contact" className="hover:text-blue-200">
-                    ติดต่อเรา
+                    {translations[language].contactUs}
                   </Link>
                 </li>
               </ul>
             </div>
-            <div>
-              <h3 className="text-xl font-semibold mb-4">เว็บไซต์ที่เกี่ยวข้อง</h3>
+            <div className={isDarkMode ? 'text-gray-300' : 'text-gray-100'}>
+              <h3 className="text-xl font-semibold mb-4">{translations[language].relatedWebsites}</h3>
               <ul className="space-y-2">
                 <li>
                   <a
@@ -687,7 +1332,7 @@ function HomePage() {
                     rel="noopener noreferrer"
                     className="hover:text-blue-200"
                   >
-                    วิทยาลัยเทคโนโลยีเอเชียลพบุรี
+                    {translations[language].college}
                   </a>
                 </li>
                 <li>
@@ -697,7 +1342,7 @@ function HomePage() {
                     rel="noopener noreferrer"
                     className="hover:text-blue-200"
                   >
-                    กรมสรรพกร
+                    {translations[language].revenue}
                   </a>
                 </li>
                 <li>
@@ -707,14 +1352,18 @@ function HomePage() {
                     rel="noopener noreferrer"
                     className="hover:text-blue-200"
                   >
-                    สำนักงานบัญชี
+                    {translations[language].accounting}
                   </a>
                 </li>
               </ul>
             </div>
           </div>
-          <div className="mt-8 pt-8 border-t border-blue-800 text-center">
-            <p>© 2567 Smart Tax Side. สงวนลิขสิทธิ์.</p>
+          <div className={`mt-8 pt-8 border-t ${
+            isDarkMode ? 'border-gray-800' : 'border-blue-800'
+          } text-center`}>
+            <p className={isDarkMode ? 'text-gray-400' : 'text-gray-300'}>
+              {translations[language].copyright}
+            </p>
           </div>
         </div>
       </footer>
@@ -746,7 +1395,7 @@ function HomePage() {
   );
 }
 
-function NavItem({ icon, text, to }) {
+function NavItem({ icon, text, to }: NavItemProps) {
   return (
     <li>
       <Link
@@ -760,28 +1409,61 @@ function NavItem({ icon, text, to }) {
   );
 }
 
-function QuickLink({ icon, title, description }) {
+function QuickLink({ icon, title, description }: QuickLinkProps) {
+  const { isDarkMode } = useTheme();
+  
   return (
-    <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-      <div className="text-blue-900">{icon}</div>
+    <div className={`flex items-center space-x-3 p-3 rounded-lg transition-all duration-300 ${
+      isDarkMode 
+        ? 'hover:bg-gray-700 text-gray-100' 
+        : 'hover:bg-gray-50 text-gray-900'
+    }`}>
+      <div className={isDarkMode ? 'text-gray-100' : 'text-blue-900'}>{icon}</div>
       <div>
-        <h3 className="font-semibold text-gray-900">{title}</h3>
-        <p className="text-sm text-gray-600">{description}</p>
+        <h3 className={`font-semibold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>{title}</h3>
+        <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{description}</p>
       </div>
     </div>
   );
 }
 
-function ServiceCard({ icon, title, description }) {
+function ServiceCard({ icon, title, description }: ServiceCardProps) {
+  const { isDarkMode } = useTheme();
+  
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition-shadow">
-      <div className="inline-block p-3 bg-blue-100 rounded-full text-blue-900 mb-4">
-        {icon}
+    <div className={`rounded-lg p-8 text-center transition-all duration-300 ${
+      isDarkMode
+        ? 'bg-gray-800 shadow-lg shadow-gray-900/50 hover:shadow-gray-900/70'
+        : 'bg-white shadow-lg hover:shadow-xl'
+    }`}>
+      <div className="flex justify-center mb-6 flex-shrink-0">
+        <img
+          src={icon}
+          alt={title}
+          className="w-45 h-45 md:w-50 md:h-50 object-contain"
+        />
       </div>
-      <h3 className="text-xl font-semibold mb-2">{title}</h3>
-      <p className="text-gray-600">{description}</p>
+      <h3 className={`text-2xl font-bold mb-4 ${
+        isDarkMode ? 'text-gray-100' : 'text-gray-900'
+      }`}>
+        {title}
+      </h3>
+      <p className={`text-sm leading-relaxed flex-grow ${
+        isDarkMode ? 'text-gray-300' : 'text-gray-600'
+      }`}>
+        {description}
+      </p>
     </div>
   );
 }
 
-export default HomePage;
+export { HomePage };
+export default function App() {
+  return (
+    <ThemeProvider>
+      <LanguageProvider>
+        <HomePage />
+      </LanguageProvider>
+    </ThemeProvider>
+  );
+}
