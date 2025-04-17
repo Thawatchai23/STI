@@ -28,6 +28,8 @@ export default {
           800: '#9f1239',
           900: '#881337',
         },
+        customNavBlue: '#02365A',
+        customNavBlueDark: '#012A4A',
       },
     },
   },
