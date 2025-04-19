@@ -10,10 +10,13 @@ interface OrderModalProps {
     image: string;
     producer: string;
     category: string;
+    colors?: string[];
   };
+  selectedColor: string | null;
+  onColorSelect: (color: string) => void;
 }
 
-export default function OrderModal({ isOpen, onClose, product }: OrderModalProps) {
+export default function OrderModal({ isOpen, onClose, product, selectedColor, onColorSelect }: OrderModalProps) {
   const [step, setStep] = useState<'form' | 'payment'>('form');
   const [formData, setFormData] = useState({
     name: '',
@@ -66,6 +69,27 @@ export default function OrderModal({ isOpen, onClose, product }: OrderModalProps
                   <p className="text-primary-600 font-semibold">฿{product.price}</p>
                 </div>
               </div>
+
+              {product.colors && (
+                <div className="mb-6">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-3">เลือกสี</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {product.colors.map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => onColorSelect(color)}
+                        className={`px-4 py-2 rounded-full border transition-all duration-300 ${
+                          selectedColor === color
+                            ? 'border-blue-500 bg-blue-50 text-blue-700'
+                            : 'border-gray-300 hover:border-gray-400 text-gray-700'
+                        }`}
+                      >
+                        {color}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-4">
                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">

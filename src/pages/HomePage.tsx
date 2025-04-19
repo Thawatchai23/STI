@@ -38,6 +38,7 @@ import OrderModal from "../components/OrderModal";
 import CartModal from "../components/CartModal";
 import logo from "../img/public1/IMG_0662.png";
 
+
 interface ThemeContextType {
   isDarkMode: boolean;
   toggleTheme: () => void;
@@ -124,30 +125,35 @@ function SettingsMenu() {
       <div className="flex items-center space-x-1">
         <button
           onClick={toggleLanguage}
-          className="px-4 py-2 rounded-lg hover:bg-white/10 transition-all duration-300 flex items-center space-x-2"
+          className="px-4 py-2 rounded-lg transition-all duration-300 flex items-center space-x-2 group"
           aria-label={language === 'th' ? 'Switch to English' : 'เปลี่ยนเป็นภาษาไทย'}
         >
-          <Languages className="w-5 h-5 text-white/90" />
-          <span className="text-sm font-medium text-white/90">
+          <Languages className="w-5 h-5 text-white/90 group-hover:text-red-500 transition-colors duration-300" />
+          <span className="text-base font-bold text-white/90 group-hover:text-red-500 transition-all duration-300">
             {language === 'th' ? 'EN' : 'TH'}
           </span>
         </button>
         <button
           onClick={toggleTheme}
-          className="px-4 py-2 rounded-lg hover:bg-white/10 transition-all duration-300 flex items-center space-x-2"
+          className="px-4 py-2 rounded-lg transition-all duration-300 flex items-center space-x-2 group"
           aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
         >
-          {isDarkMode ? (
-            <>
-              <Sun className="w-5 h-5 text-white/90" />
-              <span className="text-sm font-medium text-white/90">สว่าง</span>
-            </>
-          ) : (
-            <>
-              <Moon className="w-5 h-5 text-white/90" />
-              <span className="text-sm font-medium text-white/90">มืด</span>
-            </>
-          )}
+          <div className="relative w-12 h-6 rounded-full bg-gray-600 transition-colors duration-300">
+            <div className={`absolute left-0 top-0 w-6 h-6 rounded-full transition-transform duration-300 flex items-center justify-center ${
+              isDarkMode 
+                ? 'transform translate-x-6 bg-red-500' 
+                : 'bg-white'
+            }`}>
+              {isDarkMode ? (
+                <Moon className="w-4 h-4 text-white" />
+              ) : (
+                <Sun className="w-4 h-4 text-yellow-500" />
+              )}
+            </div>
+          </div>
+          <span className="text-base font-bold text-white/90 hidden md:block group-hover:text-red-500 transition-all duration-300">
+            {isDarkMode ? 'โหมดมืด' : 'โหมดสว่าง'}
+          </span>
         </button>
       </div>
     </div>
@@ -163,6 +169,7 @@ interface Product {
   rating: number;
   reviews: number;
   awards: string[];
+  colors?: string[];
 }
 
 interface CartItem extends Product {
@@ -518,12 +525,14 @@ function HomePage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const { isDarkMode } = useTheme();
   const { language } = useLanguage();
+  const [selectedProductType, setSelectedProductType] = useState<string | null>(null);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
 
   const slides: Slide[] = [
     {
       image: {
-        desktop: "/src/img/public1/sti1.png",
-        mobile: "/src/img/public1/sti1.png"
+        desktop: "./img/public1/sti1.png",
+        mobile: "./img/public1/sti1.png"
       },
      
     },
@@ -543,8 +552,8 @@ function HomePage() {
     },
     {
       image: {
-        desktop: "/src/img/logo.png",
-        mobile: "/src/img/moblie.jpg"
+        desktop: "/src/img/public1/1.jpg",
+        mobile: "/src/img/public1/1.jpg"
       },
     
     }
@@ -641,24 +650,26 @@ function HomePage() {
 
   const localProducts = [
     {
-      name: "แก้วเก็บความเย็น",
+      name: "เสื้อ",
       category: "ของใช้",
       price: "219",
       rating: 4.8,
       reviews: 1,
-      image: "src/img/public1/IMG_0662.png",
+      image: "/img/public1/IMG_0662.png",
       producer: "",
-      awards: ["HOT", "New"]
+      awards: ["HOT", "New"],
+      colors: ["สีดำ", "สีขาว", "สีน้ำเงิน"]
     },
     {
-      name: "เสื้อ",
+      name: "แก้วเก็บความเย็น",
       category: "เสื้อผ้าแฟชั่น",
       price: "179",
       rating: 4.9,
       reviews: 1,
       image: "https://drive.google.com/uc?export=view&id=1egY9STiZWK5fMjymLO8s97bKjsc9qoYe",
       producer: "",
-      awards: ["HOT", "Pre-order"]
+      awards: ["HOT", "Pre-order"],
+      colors: ["สีดำ", "สีขาว", "สีน้ำเงิน", "สีเงิน"]
     },
     {
       name: "พวงกุญแจ",
@@ -701,33 +712,33 @@ function HomePage() {
 
   // Update the navigation items with translations
   const navItems = [
-    { to: "/", icon: <Home size={24} />, text: translations[language].home, group: "main" },
-    { to: "/tax-knowledge", icon: <BookOpen size={24} />, text: translations[language].knowledge, group: "info" },
-    { to: "/tax-news", icon: <Newspaper size={24} />, text: translations[language].news, group: "info" },
-    { to: "/tax-forms", icon: <FileText size={24} />, text: translations[language].forms, group: "info" },
-    { to: "/contact", icon: <Phone size={24} />, text: translations[language].contact, group: "support" },
-    { to: "/about", icon: <Info size={24} />, text: translations[language].about, group: "support" }
-  ];
+    { to: "/", icon: <Home size={24} />, text: "home", group: "main" },
+    { to: "/tax-knowledge", icon: <BookOpen size={24} />, text: "knowledge", group: "info" },
+    { to: "/tax-news", icon: <Newspaper size={24} />, text: "news", group: "info" },
+    { to: "/tax-forms", icon: <FileText size={24} />, text: "forms", group: "info" },
+    { to: "/contact", icon: <Phone size={24} />, text: "contact", group: "support" },
+    { to: "/about", icon: <Info size={24} />, text: "about", group: "support" }
+  ] as const;
 
   // Update the services section with translations
   const services = [
     {
       to: "/welfare",
-      icon: "/src/img/icons/m1.png",
+      icon: "/img/icons/m1.png",
       title: translations[language].taxCalculator,
       alt: translations[language].taxCalculator,
       description: translations[language].taxCalculatorDesc
     },
     {
       to: "/chat",
-      icon: "/src/img/icons/m2.png",
+      icon: "/img/icons/m2.png",
       title: translations[language].taxChat,
       alt: translations[language].taxChat,
       description: translations[language].taxChatDesc
     },
     {
       to: "/nearby",
-      icon: "/src/img/icons/m3.png",
+      icon: "/img/icons/m3.png",
       title: translations[language].taxNearby,
       alt: translations[language].taxNearby,
       description: translations[language].taxNearbyDesc
@@ -735,7 +746,7 @@ function HomePage() {
   ];
 
   return (
-    <div className={`min-h-screen transition-all duration-300 ${
+    <div className={`min-h-screen transition-all duration-300 font-itim ${
       isDarkMode 
         ? 'bg-gray-900 text-gray-100' 
         : 'bg-gray-50 text-gray-900'
@@ -758,8 +769,8 @@ function HomePage() {
                     className="w-12 h-12 object-contain"
                   />
                   <div className="flex flex-col">
-                    <span className="text-xl font-bold text-white tracking-wide">Smart Tax Inside</span>
-                    <span className="text-sm text-white/90 font-light tracking-wider">ระบบคำนวณภาษีอัจฉริยะ</span>
+                    <span className="text-xl font-bold text-white tracking-wide font-itim">Smart Tax Inside</span>
+                    <span className="text-sm text-white/90 font-light tracking-wider font-itim">ระบบคำนวณภาษีอัจฉริยะ</span>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -792,15 +803,14 @@ function HomePage() {
                       <li key={index}>
                         <Link
                           to={item.to}
-                          className="flex flex-col items-center p-3 rounded-lg transition-all duration-300 hover:bg-white/10 relative overflow-hidden group"
+                          className="flex flex-col items-center p-3 rounded-lg transition-all duration-300 relative overflow-hidden group"
                           onClick={() => setIsMenuOpen(false)}
                         >
-                          <span className="text-white/90 transition-transform duration-300 group-hover:scale-110 group-hover:text-white mb-1">
+                          <span className="text-white/90 transition-transform duration-300 group-hover:scale-110 group-hover:text-red-500 mb-1">
                             {item.icon}
                           </span>
-                          <span className="font-medium text-xs tracking-wide transition-all duration-300 group-hover:text-white text-white/90 text-center whitespace-nowrap relative">
-                            {item.text}
-                            <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-white transform -translate-x-1/2 transition-all duration-300 group-hover:w-full opacity-0 group-hover:opacity-100"></span>
+                          <span className="font-bold text-sm tracking-wide text-white/90 text-center whitespace-nowrap group-hover:text-red-500 transition-all duration-300">
+                            {translations[language][item.text]}
                           </span>
                         </Link>
                       </li>
@@ -820,10 +830,10 @@ function HomePage() {
                       className="w-14 h-14 object-contain"
                     />
                     <div className="flex flex-col">
-                      <span className="text-2xl font-bold text-white tracking-wide bg-gradient-to-r from-white to-white/80 bg-clip-text">
+                      <span className="text-2xl font-bold text-white tracking-wide bg-gradient-to-r from-white to-white/80 bg-clip-text font-itim">
                         Smart Tax Inside
                       </span>
-                      <span className="text-sm text-white/80 font-light tracking-wider">
+                      <span className="text-sm text-white/80 font-light tracking-wider font-itim">
                         ระบบคำนวณภาษีอัจฉริยะ
                       </span>
                     </div>
@@ -837,12 +847,11 @@ function HomePage() {
                       <div className="flex items-center px-2">
                         <Link
                           to="/"
-                          className="relative px-4 py-2 rounded-lg group hover:bg-white/10 transition-all duration-300"
+                          className="relative px-4 py-2 rounded-lg transition-all duration-300 group"
                         >
-                          <span className="text-sm font-medium text-white/90 group-hover:text-white transition-colors duration-300">
-                            หน้าหลัก
+                          <span className="text-base font-bold text-white/90 group-hover:text-red-500 transition-all duration-300">
+                            {translations[language].home}
                           </span>
-                          <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-white transform -translate-x-1/2 transition-all duration-300 group-hover:w-4/5 opacity-0 group-hover:opacity-100"></span>
                         </Link>
                       </div>
 
@@ -852,30 +861,27 @@ function HomePage() {
                       <div className="flex items-center space-x-1 px-2">
                         <Link
                           to="/tax-knowledge"
-                          className="relative px-4 py-2 rounded-lg group hover:bg-white/10 transition-all duration-300"
+                          className="relative px-4 py-2 rounded-lg transition-all duration-300 group"
                         >
-                          <span className="text-sm font-medium text-white/90 group-hover:text-white transition-colors duration-300">
-                            ความรู้
+                          <span className="text-base font-bold text-white/90 group-hover:text-red-500 transition-all duration-300">
+                            {translations[language].knowledge}
                           </span>
-                          <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-white transform -translate-x-1/2 transition-all duration-300 group-hover:w-4/5 opacity-0 group-hover:opacity-100"></span>
                         </Link>
                         <Link
                           to="/tax-news"
-                          className="relative px-4 py-2 rounded-lg group hover:bg-white/10 transition-all duration-300"
+                          className="relative px-4 py-2 rounded-lg transition-all duration-300 group"
                         >
-                          <span className="text-sm font-medium text-white/90 group-hover:text-white transition-colors duration-300">
-                            ข่าวสาร
+                          <span className="text-base font-bold text-white/90 group-hover:text-red-500 transition-all duration-300">
+                            {translations[language].news}
                           </span>
-                          <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-white transform -translate-x-1/2 transition-all duration-300 group-hover:w-4/5 opacity-0 group-hover:opacity-100"></span>
                         </Link>
                         <Link
                           to="/tax-forms"
-                          className="relative px-4 py-2 rounded-lg group hover:bg-white/10 transition-all duration-300"
+                          className="relative px-4 py-2 rounded-lg transition-all duration-300 group"
                         >
-                          <span className="text-sm font-medium text-white/90 group-hover:text-white transition-colors duration-300">
-                            แบบฟอร์ม
+                          <span className="text-base font-bold text-white/90 group-hover:text-red-500 transition-all duration-300">
+                            {translations[language].forms}
                           </span>
-                          <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-white transform -translate-x-1/2 transition-all duration-300 group-hover:w-4/5 opacity-0 group-hover:opacity-100"></span>
                         </Link>
                       </div>
 
@@ -884,22 +890,20 @@ function HomePage() {
                       {/* Support Group */}
                       <div className="flex items-center space-x-1 px-2">
                         <Link
-                to="/contact"
-                          className="relative px-4 py-2 rounded-lg group hover:bg-white/10 transition-all duration-300"
+                          to="/contact"
+                          className="relative px-4 py-2 rounded-lg transition-all duration-300 group"
                         >
-                          <span className="text-sm font-medium text-white/90 group-hover:text-white transition-colors duration-300">
-                            ติดต่อ
+                          <span className="text-base font-bold text-white/90 group-hover:text-red-500 transition-all duration-300">
+                            {translations[language].contact}
                           </span>
-                          <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-white transform -translate-x-1/2 transition-all duration-300 group-hover:w-4/5 opacity-0 group-hover:opacity-100"></span>
                         </Link>
                         <Link
                           to="/about"
-                          className="relative px-4 py-2 rounded-lg group hover:bg-white/10 transition-all duration-300"
+                          className="relative px-4 py-2 rounded-lg transition-all duration-300 group"
                         >
-                          <span className="text-sm font-medium text-white/90 group-hover:text-white transition-colors duration-300">
-                            เกี่ยวกับ
+                          <span className="text-base font-bold text-white/90 group-hover:text-red-500 transition-all duration-300">
+                            {translations[language].about}
                           </span>
-                          <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-white transform -translate-x-1/2 transition-all duration-300 group-hover:w-4/5 opacity-0 group-hover:opacity-100"></span>
                         </Link>
                       </div>
                     </nav>
@@ -1105,8 +1109,44 @@ function HomePage() {
             </p>
           </div>
 
+          {/* Product Type Selection */}
+          <div className="flex justify-center space-x-4 mb-8">
+            <button
+              onClick={() => setSelectedProductType('เสื้อ')}
+              onDoubleClick={() => setSelectedProductType(null)}
+              className={`px-6 py-2 rounded-full transition-all duration-300 ${
+                selectedProductType === 'เสื้อ'
+                  ? isDarkMode
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-primary-600 text-white'
+                  : isDarkMode
+                    ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              เสื้อ
+            </button>
+            <button
+              onClick={() => setSelectedProductType('แก้วเก็บความเย็น')}
+              onDoubleClick={() => setSelectedProductType(null)}
+              className={`px-6 py-2 rounded-full transition-all duration-300 ${
+                selectedProductType === 'แก้วเก็บความเย็น'
+                  ? isDarkMode
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-primary-600 text-white'
+                  : isDarkMode
+                    ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              แก้วเก็บความเย็น
+            </button>
+          </div>
+
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {localProducts.map((product, index) => (
+            {localProducts
+              .filter(product => !selectedProductType || product.name === selectedProductType)
+              .map((product, index) => (
               <div 
                 key={index} 
                 className={`rounded-xl overflow-hidden transition-all duration-300 ${
@@ -1123,7 +1163,7 @@ function HomePage() {
                     className="w-full h-48 object-cover"
                   />
                   <div className="absolute top-4 right-4">
-                    <div className="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
+                    <div className="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-semibold shadow-lg font-itim">
                       {getAwardTranslation(product.awards[0], language)}
                     </div>
                   </div>
@@ -1131,17 +1171,17 @@ function HomePage() {
                 <div className={`p-6 ${
                   isDarkMode ? 'text-gray-100' : 'text-gray-900'
                 }`}>
-                  <div className={`text-sm font-medium mb-2 ${
+                  <div className={`text-sm font-medium mb-2 font-itim ${
                     isDarkMode ? 'text-blue-400' : 'text-primary-600'
                   }`}>
                     {getCategoryTranslation(product.category as keyof CategoryTranslations, language)}
                   </div>
-                  <h3 className={`text-xl font-semibold mb-2 ${
+                  <h3 className={`text-xl font-semibold mb-2 font-itim ${
                     isDarkMode ? 'text-gray-100' : 'text-gray-900'
                   }`}>
-                    {getProductTranslation(product, language, product.name as keyof ProductTranslations)}
+                    {product.name}
                   </h3>
-                  <p className={`text-sm mb-4 ${
+                  <p className={`text-sm mb-4 font-itim ${
                     isDarkMode ? 'text-gray-400' : 'text-gray-600'
                   }`}>
                     {translations[language].producedBy}: {product.producer}
@@ -1246,14 +1286,14 @@ function HomePage() {
                   </p>
                   <div className="flex items-center text-sm text-gray-500 mb-4">
                     <MapPin className="w-4 h-4 mr-2" />
-                    {news.location}
+                    <span className="font-itim">{news.location}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <div className="flex items-center text-sm text-gray-500">
                       <Camera className="w-4 h-4 mr-2" />
-                      <span>{translations[language].viewAllPhotos}</span>
+                      <span className="font-itim">{translations[language].viewAllPhotos}</span>
                     </div>
-                    <button className="text-blue-600 hover:text-blue-700 font-semibold text-sm">
+                    <button className="text-blue-600 hover:text-blue-700 font-semibold text-sm font-itim">
                       {translations[language].readMore} →
                     </button>
                   </div>
@@ -1273,10 +1313,10 @@ function HomePage() {
         <div className="container mx-auto px-4 py-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div className={isDarkMode ? 'text-gray-300' : 'text-gray-100'}>
-              <h3 className="text-xl font-semibold mb-4">
+              <h3 className="text-xl font-semibold mb-4 font-itim">
                 {translations[language].companyInfo.name}
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-2 font-itim">
                 <p className="flex items-center">
                   <Phone className="w-4 h-4 mr-2" /> {translations[language].companyInfo.phone}
                 </p>
@@ -1286,20 +1326,20 @@ function HomePage() {
               </div>
             </div>
             <div className={isDarkMode ? 'text-gray-300' : 'text-gray-100'}>
-              <h3 className="text-xl font-semibold mb-4">
+              <h3 className="text-xl font-semibold mb-4 font-itim">
                 {translations[language].workingHours}
               </h3>
-              <h3 className="text-xl font-semibold mb-4">{translations[language].workingDays}</h3>
-              <div className="space-y-2">
+              <h3 className="text-xl font-semibold mb-4 font-itim">{translations[language].workingDays}</h3>
+              <div className="space-y-2 font-itim">
                 <p className="flex items-center">
                   <Clock className="w-4 h-4 mr-2" /> {translations[language].workingTime}
                 </p>
-                <p className="ml-6">{translations[language].closedDay}</p>
+                <p className="ml-6 font-itim">{translations[language].closedDay}</p>
               </div>
             </div>
             <div className={isDarkMode ? 'text-gray-300' : 'text-gray-100'}>
-              <h3 className="text-xl font-semibold mb-4">{translations[language].relatedLinks}</h3>
-              <ul className="space-y-2">
+              <h3 className="text-xl font-semibold mb-4 font-itim">{translations[language].relatedLinks}</h3>
+              <ul className="space-y-2 font-itim">
                 <li>
                   <Link to="/about" className="hover:text-blue-200">
                     {translations[language].aboutCompany}
@@ -1323,8 +1363,8 @@ function HomePage() {
               </ul>
             </div>
             <div className={isDarkMode ? 'text-gray-300' : 'text-gray-100'}>
-              <h3 className="text-xl font-semibold mb-4">{translations[language].relatedWebsites}</h3>
-              <ul className="space-y-2">
+              <h3 className="text-xl font-semibold mb-4 font-itim">{translations[language].relatedWebsites}</h3>
+              <ul className="space-y-2 font-itim">
                 <li>
                   <a
                     href="https://www.dla.go.th"
@@ -1375,6 +1415,7 @@ function HomePage() {
           onClose={() => {
             setIsCartModalOpen(false);
             setSelectedProduct(null);
+            setSelectedColor(null);
           }}
           product={selectedProduct}
           onAddToCart={handleAddToCart}
@@ -1387,8 +1428,11 @@ function HomePage() {
           onClose={() => {
             setIsOrderModalOpen(false);
             setSelectedProduct(null);
+            setSelectedColor(null);
           }}
           product={selectedProduct}
+          selectedColor={selectedColor}
+          onColorSelect={(color) => setSelectedColor(color)}
         />
       )}
     </div>
@@ -1420,8 +1464,8 @@ function QuickLink({ icon, title, description }: QuickLinkProps) {
     }`}>
       <div className={isDarkMode ? 'text-gray-100' : 'text-blue-900'}>{icon}</div>
       <div>
-        <h3 className={`font-semibold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>{title}</h3>
-        <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{description}</p>
+        <h3 className={`font-semibold font-itim ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>{title}</h3>
+        <p className={`text-sm font-itim ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{description}</p>
       </div>
     </div>
   );
@@ -1443,12 +1487,12 @@ function ServiceCard({ icon, title, description }: ServiceCardProps) {
           className="w-45 h-45 md:w-50 md:h-50 object-contain"
         />
       </div>
-      <h3 className={`text-2xl font-bold mb-4 ${
+      <h3 className={`text-2xl font-bold mb-4 font-itim ${
         isDarkMode ? 'text-gray-100' : 'text-gray-900'
       }`}>
         {title}
       </h3>
-      <p className={`text-sm leading-relaxed flex-grow ${
+      <p className={`text-sm leading-relaxed flex-grow font-itim ${
         isDarkMode ? 'text-gray-300' : 'text-gray-600'
       }`}>
         {description}
