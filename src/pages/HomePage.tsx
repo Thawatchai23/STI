@@ -732,7 +732,7 @@ function HomePage() {
       description: translations[language].taxCalculatorDesc
     },
     {
-      to: "/chat",
+      to: "/tax-chat",
       icon: "/img/icons/m2.png",
       title: translations[language].taxChat,
       alt: translations[language].taxChat,
