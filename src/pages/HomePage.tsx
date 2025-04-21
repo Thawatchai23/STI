@@ -39,6 +39,7 @@ import CartModal from "../components/CartModal";
 import logo from "../img/public1/IMG_0662.png";
 import sti1 from "../img/public1/sti1.png";
 import TaxChatbot from '../components/TaxChatbot';
+import ChatBot from '../components/ChatBot';
 
 
 interface ThemeContextType {
@@ -1058,22 +1059,18 @@ function HomePage() {
         <h2 className="text-3xl font-bold text-center mb-12">
           {translations[language].services}
         </h2>
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Tax Chatbot */}
-          <div className="col-span-1">
-            <TaxChatbot />
-          </div>
-          {/* Other Services */}
-          <div className="col-span-1 grid gap-8">
-            {services.map((service, index) => (
-              <Link key={index} to={service.to} className="block group">
-                <ServiceCard
-                  icon={service.icon}
-                  title={service.title}
-                  description={service.description}
-                />
-              </Link>
-            ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {services.map((service, index) => (
+            <Link key={index} to={service.to} className="block group">
+              <ServiceCard
+                icon={service.icon}
+                title={service.title}
+                description={service.description}
+              />
+            </Link>
+          ))}
+          <div className="col-span-1 md:col-span-2 lg:col-span-3">
+            <ChatBot />
           </div>
         </div>
       </div>
