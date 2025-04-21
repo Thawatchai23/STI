@@ -747,6 +747,8 @@ function HomePage() {
     }
   ];
 
+  const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+
   return (
     <div className={`min-h-screen transition-all duration-300 font-itim ${
       isDarkMode 
