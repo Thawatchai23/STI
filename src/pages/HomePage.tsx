@@ -37,6 +37,8 @@ import {
 import OrderModal from "../components/OrderModal";
 import CartModal from "../components/CartModal";
 import logo from "../img/public1/IMG_0662.png";
+import sti1 from "../img/public1/sti1.png";
+import TaxChatbot from '../components/TaxChatbot';
 
 
 interface ThemeContextType {
@@ -352,8 +354,8 @@ const translations: Record<'th' | 'en', TranslationType> = {
     ticker3: "📋 ปริ้นเอกสารออกมากรอกข้อมูล",
 
     // OTOP Products
-    otopProducts: "ผลิตภัณฑ์ชุมชน OTOP",
-    otopDesc: "ผลิตภัณฑ์คุณภาพจากภูมิปัญญาท้องถิ่น สร้างรายได้สู่ชุมชน",
+    otopProducts: "สนันสนุนสินค้าเรา",
+    otopDesc: "เราจะนำรายได้ที่ได้รับจาการขายสินค้าไป มาพัฒนาเว็บไซต์",
     producedBy: "ผลิตโดย",
     reviews: "รีวิว",
     orderProduct: "สั่งซื้อสินค้า",
@@ -1054,34 +1056,23 @@ function HomePage() {
         <h2 className="text-3xl font-bold text-center mb-12">
           {translations[language].services}
         </h2>
-        <div className="grid md:grid-cols-3 gap-8">
-          {services.map((service, index) => (
-            <Link key={index} to={service.to} className="block group">
-              <div className={`h-[450px] rounded-lg p-8 text-center transition-all duration-300 flex flex-col ${
-                isDarkMode
-                  ? 'bg-gray-800 shadow-lg shadow-gray-900/50 group-hover:shadow-gray-900/70'
-                  : 'bg-white shadow-lg group-hover:shadow-xl'
-              }`}>
-                <div className="flex-shrink-0 flex justify-center items-center h-64 mb-6">
-                  <img
-                    src={service.icon}
-                    alt={service.alt}
-                    className="w-56 h-56 object-contain transition-transform duration-300 group-hover:scale-110"
-                  />
-                </div>
-                <h3 className={`text-2xl font-bold mb-4 ${
-                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
-                }`}>
-                  {service.title}
-                </h3>
-                <p className={`text-sm ${
-                  isDarkMode ? 'text-gray-300' : 'text-gray-600'
-                } leading-relaxed flex-grow`}>
-                  {service.description}
-                </p>
-              </div>
-          </Link>
-          ))}
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Tax Chatbot */}
+          <div className="col-span-1">
+            <TaxChatbot />
+          </div>
+          {/* Other Services */}
+          <div className="col-span-1 grid gap-8">
+            {services.map((service, index) => (
+              <Link key={index} to={service.to} className="block group">
+                <ServiceCard
+                  icon={service.icon}
+                  title={service.title}
+                  description={service.description}
+                />
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
 
