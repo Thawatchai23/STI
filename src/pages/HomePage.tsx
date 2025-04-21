@@ -16,7 +16,7 @@ import {
   Home,
   Info,
   Newspaper,
-  HandHeart,
+  Heart,
   MessageCircle,
   UserCircle,
   Camera,
@@ -38,7 +38,6 @@ import OrderModal from "../components/OrderModal";
 import CartModal from "../components/CartModal";
 import logo from "../img/public1/IMG_0662.png";
 import sti1 from "../img/public1/sti1.png";
-import TaxChatbot from '../components/TaxChatbot';
 import ChatBot from '../components/ChatBot';
 
 
@@ -1036,7 +1035,7 @@ function HomePage() {
             </Link>
             <Link to="">
               <QuickLink
-                icon={<HandHeart className="w-6 h-6" />}
+                icon={<Heart className="w-6 h-6" />}
                 title={translations[language].welfare}
                 description={translations[language].welfareDesc}
               />
@@ -1409,6 +1408,8 @@ function HomePage() {
           }}
           product={selectedProduct}
           onAddToCart={handleAddToCart}
+          selectedColor={selectedColor}
+          onColorSelect={(color) => setSelectedColor(color)}
         />
       )}
       {/* Order Modal */}
