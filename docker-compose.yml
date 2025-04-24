@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  web:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=http://localhost:3000
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Development service for hot-reloading
+  dev:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host"
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./public:/app/public
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3000
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    env_file:
+      - .env
+    restart: unless-stopped
+
+# volumes for persistent data
+volumes:
+  node_modules:
+
+# Add Supabase service if needed
+# supabase:
+#   image: supabase/supabase-db
+#   ports:
+#     - "5432:5432"
+#   environment:
+#     - POSTGRES_PASSWORD=your-password
+#   volumes:
+#     - supabase-data:/var/lib/postgresql/data
+
+# volumes:
+#   supabase-data: 

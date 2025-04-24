@@ -715,7 +715,7 @@ function HomePage() {
     { to: "/", icon: <Home size={24} />, text: "home", group: "main" },
     { to: "/tax-knowledge", icon: <BookOpen size={24} />, text: "knowledge", group: "info" },
     { to: "/tax-news", icon: <Newspaper size={24} />, text: "news", group: "info" },
-    { to: "/tax-forms", icon: <FileText size={24} />, text: "forms", group: "info" },
+    { to: "/documents", icon: <FileText size={24} />, text: "forms", group: "info" },
     { to: "/contact", icon: <Phone size={24} />, text: "contact", group: "support" },
     { to: "/about", icon: <Info size={24} />, text: "about", group: "support" }
   ] as const;
@@ -755,7 +755,7 @@ function HomePage() {
       <nav 
         className={`fixed top-0 left-0 right-0 transition-all duration-300 ${
           isDarkMode 
-            ? 'bg-gray-800/95 backdrop-blur-sm border-b border-gray-700' 
+            ? 'bg-[#1A1D24] border-b border-gray-800' 
             : 'bg-gradient-to-b from-customNavBlue to-customNavBlueDark'
         } text-white shadow-lg z-50`}
       >
@@ -769,21 +769,33 @@ function HomePage() {
                     className="w-12 h-12 object-contain"
                   />
                   <div className="flex flex-col">
-                    <span className="text-xl font-bold text-white tracking-wide font-itim">Smart Tax Inside</span>
-                    <span className="text-sm text-white/90 font-light tracking-wider font-itim">ระบบคำนวณภาษีอัจฉริยะ</span>
+                    <span className={`text-xl font-bold tracking-wide font-itim ${
+                      isDarkMode ? 'text-white' : 'text-white'
+                    }`}>Smart Tax Inside</span>
+                    <span className={`text-sm font-light tracking-wider font-itim ${
+                      isDarkMode ? 'text-gray-400' : 'text-white/90'
+                    }`}>ระบบคำนวณภาษีอัจฉริยะ</span>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
                   <SettingsMenu />
                   <button
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    className="text-white focus:outline-none group relative w-10 h-10 flex items-center justify-center"
+                    className={`focus:outline-none group relative w-10 h-10 flex items-center justify-center ${
+                      isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-white'
+                    }`}
                     aria-label="Toggle menu"
                   >
                     <div className="relative w-6 h-5">
-                      <span className={`absolute w-full h-0.5 bg-white transform transition-all duration-300 ease-in-out ${isMenuOpen ? 'rotate-45 translate-y-2' : '-translate-y-2'}`}></span>
-                      <span className={`absolute w-full h-0.5 bg-white transform transition-all duration-300 ease-in-out ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
-                      <span className={`absolute w-full h-0.5 bg-white transform transition-all duration-300 ease-in-out ${isMenuOpen ? '-rotate-45 translate-y-2' : 'translate-y-2'}`}></span>
+                      <span className={`absolute w-full h-0.5 transform transition-all duration-300 ease-in-out ${
+                        isDarkMode ? 'bg-gray-400' : 'bg-white'
+                      } ${isMenuOpen ? 'rotate-45 translate-y-2' : '-translate-y-2'}`}></span>
+                      <span className={`absolute w-full h-0.5 transform transition-all duration-300 ease-in-out ${
+                        isDarkMode ? 'bg-gray-400' : 'bg-white'
+                      } ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
+                      <span className={`absolute w-full h-0.5 transform transition-all duration-300 ease-in-out ${
+                        isDarkMode ? 'bg-gray-400' : 'bg-white'
+                      } ${isMenuOpen ? '-rotate-45 translate-y-2' : 'translate-y-2'}`}></span>
                     </div>
                   </button>
                 </div>
@@ -791,31 +803,178 @@ function HomePage() {
 
               {/* Mobile Menu */}
               <div 
-                className={`md:hidden fixed inset-x-0 top-[76px] z-40 transition-all duration-300 ease-in-out transform ${
+                className={`md:hidden fixed inset-0 z-50 transition-all duration-300 ${
                   isMenuOpen 
-                    ? 'translate-x-0 opacity-100' 
-                    : 'translate-x-full opacity-0'
+                    ? 'opacity-100 pointer-events-auto' 
+                    : 'opacity-0 pointer-events-none'
                 }`}
               >
-                <div className="bg-gradient-to-b from-customNavBlue/95 to-customNavBlueDark/95 backdrop-blur-lg rounded-b-lg shadow-lg max-h-[calc(100vh-76px)] overflow-y-auto">
-                  <ul className="py-2 px-2 grid grid-cols-3 gap-2">
-                    {navItems.map((item, index) => (
-                      <li key={index}>
-                        <Link
-                          to={item.to}
-                          className="flex flex-col items-center p-3 rounded-lg transition-all duration-300 relative overflow-hidden group"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <span className="text-white/90 transition-transform duration-300 group-hover:scale-110 group-hover:text-red-500 mb-1">
-                            {item.icon}
-                          </span>
-                          <span className="font-bold text-sm tracking-wide text-white/90 text-center whitespace-nowrap group-hover:text-red-500 transition-all duration-300">
-                            {translations[language][item.text]}
-                          </span>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
+                {/* Backdrop */}
+                <div 
+                  className="absolute inset-0 bg-black/30"
+                  onClick={() => setIsMenuOpen(false)}
+                />
+                
+                {/* Menu Content */}
+                <div className={`absolute inset-y-0 right-0 w-full max-w-sm flex flex-col transition-transform duration-300 transform ${
+                  isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+                } ${isDarkMode ? 'bg-[#1A1D24]' : 'bg-white'}`}>
+                  
+                  {/* Header */}
+                  <div className={`p-5 flex items-center justify-between ${
+                    isDarkMode ? 'border-b border-gray-800' : 'border-b border-gray-100'
+                  }`}>
+                    <div className="flex items-center space-x-3">
+                      <img src={logo} alt="Logo" className="w-8 h-8" />
+                      <div>
+                        <h2 className={isDarkMode ? 'text-white font-medium' : 'text-gray-900 font-medium'}>
+                          Smart Tax Inside
+                        </h2>
+                        <p className={isDarkMode ? 'text-gray-400 text-sm' : 'text-gray-500 text-sm'}>
+                          ระบบคำนวณภาษีอัจฉริยะ
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setIsMenuOpen(false)}
+                      className={isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-500'}
+                    >
+                      <X className="w-6 h-6" />
+                    </button>
+                  </div>
+
+                  {/* Quick Links */}
+                  <div className={`grid grid-cols-4 p-6 gap-8 ${
+                    isDarkMode ? 'bg-[#1A1D24]' : ''
+                  }`}>
+                    <Link to="/" className="flex flex-col items-center">
+                      <div className={isDarkMode ? 'text-blue-400 mb-1' : 'text-blue-500 mb-1'}>
+                        <Home className="w-6 h-6" />
+                      </div>
+                      <span className={isDarkMode ? 'text-xs text-gray-400' : 'text-xs text-gray-600'}>หน้าหลัก</span>
+                    </Link>
+                    <Link to="/documents" className="flex flex-col items-center">
+                      <div className={isDarkMode ? 'text-green-400 mb-1' : 'text-green-500 mb-1'}>
+                        <FileText className="w-6 h-6" />
+                      </div>
+                      <span className={isDarkMode ? 'text-xs text-gray-400' : 'text-xs text-gray-600'}>แบบฟอร์ม</span>
+                    </Link>
+                    <Link to="/contact" className="flex flex-col items-center">
+                      <div className={isDarkMode ? 'text-purple-400 mb-1' : 'text-purple-500 mb-1'}>
+                        <Phone className="w-6 h-6" />
+                      </div>
+                      <span className={isDarkMode ? 'text-xs text-gray-400' : 'text-xs text-gray-600'}>ติดต่อ</span>
+                    </Link>
+                    <Link to="/about" className="flex flex-col items-center">
+                      <div className={isDarkMode ? 'text-red-400 mb-1' : 'text-red-500 mb-1'}>
+                        <Info className="w-6 h-6" />
+                      </div>
+                      <span className={isDarkMode ? 'text-xs text-gray-400' : 'text-xs text-gray-600'}>เกี่ยวกับ</span>
+                    </Link>
+                  </div>
+
+                  {/* Main Services */}
+                  <div className={`px-6 ${isDarkMode ? 'bg-[#1E2128]' : ''}`}>
+                    <h3 className={isDarkMode ? 'text-sm text-gray-400 mb-4' : 'text-sm text-gray-500 mb-4'}>บริการหลัก</h3>
+                    
+                    <div className="space-y-4">
+                      <Link to="/tax-payment" className="flex items-center space-x-4">
+                        <div className={isDarkMode ? 'text-blue-400' : 'text-blue-500'}>
+                          <FileText className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <div className={isDarkMode ? 'text-white' : 'text-gray-900'}>ชำระภาษี</div>
+                          <div className={isDarkMode ? 'text-sm text-gray-400' : 'text-sm text-gray-500'}>ชำระภาษีออนไลน์</div>
+                        </div>
+                      </Link>
+
+                      <Link to="/complaint" className="flex items-center space-x-4">
+                        <div className={isDarkMode ? 'text-purple-400' : 'text-purple-500'}>
+                          <Users2 className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <div className={isDarkMode ? 'text-white' : 'text-gray-900'}>ร้องเรียน</div>
+                          <div className={isDarkMode ? 'text-sm text-gray-400' : 'text-sm text-gray-500'}>แจ้งเรื่องร้องเรียน</div>
+                        </div>
+                      </Link>
+
+                      <Link to="/welfare" className="flex items-center space-x-4">
+                        <div className={isDarkMode ? 'text-green-400' : 'text-green-500'}>
+                          <HandHeart className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <div className={isDarkMode ? 'text-white' : 'text-gray-900'}>สวัสดิการ</div>
+                          <div className={isDarkMode ? 'text-sm text-gray-400' : 'text-sm text-gray-500'}>ลงทะเบียนสวัสดิการ</div>
+                        </div>
+                      </Link>
+
+                      <Link to="/contact" className="flex items-center space-x-4">
+                        <div className={isDarkMode ? 'text-red-400' : 'text-red-500'}>
+                          <MessageCircle className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <div className={isDarkMode ? 'text-white' : 'text-gray-900'}>ติดต่อเรา</div>
+                          <div className={isDarkMode ? 'text-sm text-gray-400' : 'text-sm text-gray-500'}>ติดต่อเจ้าหน้าที่</div>
+                        </div>
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Our Services */}
+                  <div className={`px-6 mt-8 pb-6 ${isDarkMode ? 'bg-[#1E2128]' : ''}`}>
+                    <h3 className={isDarkMode ? 'text-xl text-white font-medium mb-6' : 'text-xl text-gray-900 font-medium mb-6'}>บริการของเรา</h3>
+                    
+                    {/* Tax Calculator */}
+                    <Link to="/calculator" className="block mb-4">
+                      <div className="flex items-center space-x-4">
+                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                          isDarkMode ? 'bg-[#1A1D24]' : 'bg-blue-50'
+                        }`}>
+                          <Calculator className={isDarkMode ? 'w-6 h-6 text-blue-400' : 'w-6 h-6 text-blue-500'} />
+                        </div>
+                        <div>
+                          <div className={isDarkMode ? 'text-white' : 'text-gray-900'}>คำนวณภาษี</div>
+                          <div className={isDarkMode ? 'text-sm text-gray-400' : 'text-sm text-gray-500'}>
+                            Function คำนวณภาษี 5 ประเภท
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+
+                    {/* Tax Chat */}
+                    <Link to="/tax-chat" className="block mb-4">
+                      <div className="flex items-center space-x-4">
+                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                          isDarkMode ? 'bg-[#1A1D24]' : 'bg-purple-50'
+                        }`}>
+                          <MessageCircle className={isDarkMode ? 'w-6 h-6 text-purple-400' : 'w-6 h-6 text-purple-500'} />
+                        </div>
+                        <div>
+                          <div className={isDarkMode ? 'text-white' : 'text-gray-900'}>ตอบคำถามภาษี</div>
+                          <div className={isDarkMode ? 'text-sm text-gray-400' : 'text-sm text-gray-500'}>
+                            คุณสามารถทำคำถามเกี่ยวกับภาษีได้ 24 ชั่วโมง
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+
+                    {/* Tax Office Nearby */}
+                    <Link to="/nearby" className="block">
+                      <div className="flex items-center space-x-4">
+                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                          isDarkMode ? 'bg-[#1A1D24]' : 'bg-green-50'
+                        }`}>
+                          <MapPin className={isDarkMode ? 'w-6 h-6 text-green-400' : 'w-6 h-6 text-green-500'} />
+                        </div>
+                        <div>
+                          <div className={isDarkMode ? 'text-white' : 'text-gray-900'}>สรรพากรใกล้ฉัน</div>
+                          <div className={isDarkMode ? 'text-sm text-gray-400' : 'text-sm text-gray-500'}>
+                            คุณจะสามารถค้นหาสรรพากรใกล้คุณได้
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
                 </div>
               </div>
 
@@ -830,10 +989,14 @@ function HomePage() {
                       className="w-14 h-14 object-contain"
                     />
                     <div className="flex flex-col">
-                      <span className="text-2xl font-bold text-white tracking-wide bg-gradient-to-r from-white to-white/80 bg-clip-text font-itim">
+                      <span className={`text-2xl font-bold tracking-wide font-itim ${
+                        isDarkMode ? 'text-white' : 'text-white bg-gradient-to-r from-white to-white/80 bg-clip-text'
+                      }`}>
                         Smart Tax Inside
                       </span>
-                      <span className="text-sm text-white/80 font-light tracking-wider font-itim">
+                      <span className={`text-sm font-light tracking-wider font-itim ${
+                        isDarkMode ? 'text-gray-400' : 'text-white/80'
+                      }`}>
                         ระบบคำนวณภาษีอัจฉริยะ
                       </span>
                     </div>
@@ -858,7 +1021,7 @@ function HomePage() {
                       <div className="h-8 w-px bg-white/20 mx-2" />
 
                       {/* Information Group */}
-                      <div className="flex items-center space-x-1 px-2">
+                      <div className="flex items-center px-2">
                         <Link
                           to="/tax-knowledge"
                           className="relative px-4 py-2 rounded-lg transition-all duration-300 group"
@@ -876,7 +1039,7 @@ function HomePage() {
                           </span>
                         </Link>
                         <Link
-                          to="/tax-forms"
+                          to="/documents"
                           className="relative px-4 py-2 rounded-lg transition-all duration-300 group"
                         >
                           <span className="text-base font-bold text-white/90 group-hover:text-red-500 transition-all duration-300">
@@ -888,7 +1051,7 @@ function HomePage() {
                       <div className="h-8 w-px bg-white/20 mx-2" />
 
                       {/* Support Group */}
-                      <div className="flex items-center space-x-1 px-2">
+                      <div className="flex items-center px-2">
                         <Link
                           to="/contact"
                           className="relative px-4 py-2 rounded-lg transition-all duration-300 group"
