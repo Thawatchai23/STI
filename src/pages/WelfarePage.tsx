@@ -135,18 +135,18 @@ function PND90Form() {
     <div className="bg-blue-50 rounded-2xl shadow-lg p-8 max-w-lg mx-auto border border-blue-100">
       <h2 className="text-xl font-bold mb-6 text-blue-900 text-center">คำนวณภาษีเงินได้บุคคลธรรมดา (ภ.ง.ด.90)</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-              <div>
+        <div>
           <label className="block font-medium mb-1">เงินเดือน (บาท/ปี)</label>
           <input type="number" className="input input-bordered w-full" value={salary} onChange={e=>setSalary(Number(e.target.value))} />
-                </div>
+        </div>
         <div>
           <label className="block font-medium mb-1">โบนัส (บาท/ปี)</label>
           <input type="number" className="input input-bordered w-full" value={bonus} onChange={e=>setBonus(Number(e.target.value))} />
-              </div>
+        </div>
         <div>
           <label className="block font-medium mb-1">รายได้อื่นๆ (บาท/ปี)</label>
           <input type="number" className="input input-bordered w-full" value={other} onChange={e=>setOther(Number(e.target.value))} />
-            </div>
+        </div>
         <div>
           <label className="block font-medium mb-1">ค่าลดหย่อน (บาท)</label>
           <input type="number" className="input input-bordered w-full" value={deduct} onChange={e=>setDeduct(Number(e.target.value))} />
@@ -197,7 +197,7 @@ export default function WelfarePage() {
               >
                 ถัดไป
               </button>
-      </div>
+            </div>
           </>
         )}
         {step === 2 && (
@@ -209,7 +209,7 @@ export default function WelfarePage() {
                 onClick={() => setStep(1)}
               >
                 ย้อนกลับ
-        </button>
+              </button>
             </div>
           </>
         )}

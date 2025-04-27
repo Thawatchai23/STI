@@ -7,6 +7,15 @@ interface Message {
   content: string;
 }
 
+// Mock tax-related responses
+const taxResponses: { [key: string]: string } = {
+  'ภาษีเงินได้': 'ภาษีเงินได้บุคคลธรรมดา คือภาษีที่จัดเก็บจากบุคคลทั่วไป หรือจากหน่วยภาษีตามที่กฎหมายกำหนดให้เป็นหน่วยภาษี และมีรายได้เกิดขึ้นตามเกณฑ์ที่กำหนด',
+  'ภาษีที่ดิน': 'ภาษีที่ดินและสิ่งปลูกสร้าง เป็นภาษีที่จัดเก็บจากที่ดินและสิ่งปลูกสร้าง โดยองค์กรปกครองส่วนท้องถิ่นเป็นผู้รับผิดชอบการจัดเก็บ',
+  'ภาษีมูลค่าเพิ่ม': 'ภาษีมูลค่าเพิ่ม (VAT) คือ ภาษีที่จัดเก็บจากมูลค่าของสินค้าหรือบริการที่เพิ่มขึ้นในแต่ละขั้นตอนของการผลิตและจำหน่าย',
+  'การยื่นภาษี': 'การยื่นแบบแสดงรายการภาษีสามารถทำได้ทั้งที่สำนักงานสรรพากรพื้นที่สาขา หรือผ่านระบบอินเทอร์เน็ตที่เว็บไซต์กรมสรรพากร',
+  'ลดหย่อนภาษี': 'การลดหย่อนภาษีมีหลายประเภท เช่น ค่าลดหย่อนส่วนตัว ค่าลดหย่อนคู่สมรส ค่าลดหย่อนบุตร เงินประกันชีวิต เงินสะสมกองทุนสำรองเลี้ยงชีพ เป็นต้น'
+};
+
 export default function TaxChatbot() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -40,21 +49,22 @@ export default function TaxChatbot() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('https://your-app.onrender.com/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage })
-      });
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+      // Simulate processing delay
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // Find matching response based on keywords
+      let response = 'ขออภัยค่ะ ฉันไม่เข้าใจคำถามของคุณ กรุณาถามใหม่อีกครั้งโดยระบุเกี่ยวกับภาษีที่ต้องการสอบถาม เช่น ภาษีเงินได้ ภาษีที่ดิน ภาษีมูลค่าเพิ่ม การยื่นภาษี หรือการลดหย่อนภาษี';
+      
+      for (const [keyword, answer] of Object.entries(taxResponses)) {
+        if (userMessage.toLowerCase().includes(keyword.toLowerCase())) {
+          response = answer;
+          break;
+        }
       }
-
-      const data = await response.json();
       
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: data.response
+        content: response
       }]);
     } catch (error) {
       console.error('Error:', error);
