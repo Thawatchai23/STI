@@ -19,6 +19,7 @@ import StaffDirectoryPage from './pages/StaffDirectoryPage';
 import DashboardPage from './pages/DashboardPage';
 import DocumentsPage from './pages/DocumentsPage';
 import TaxChatPage from './pages/TaxChatPage';
+import TaxCalculatorPage from './pages/TaxCalculatorPage';
 
 const App: React.FC = () => {
   return (
@@ -43,6 +44,7 @@ const App: React.FC = () => {
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/documents" element={<DocumentsPage />} />
               <Route path="/tax-chat" element={<TaxChatPage />} />
+              <Route path="/tax-calculator" element={<TaxCalculatorPage />} />
             </Routes>
           </MainLayout>
         </LanguageProvider>

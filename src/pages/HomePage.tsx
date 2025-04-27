@@ -186,6 +186,8 @@ interface CartModalProps {
     producer: string;
   };
   onAddToCart: (productType: string) => void;
+  selectedColor?: string;
+  onColorSelect: (color: string) => void;
 }
 
 interface ImageObject {
@@ -546,7 +548,7 @@ function HomePage() {
     {
       image: {
         desktop: "/src/img/public1/v2.png",
-        mobile: "/src/img/v2.jpg"
+        mobile: "/src/img/public1/v2.png"
       },
      
     },
@@ -925,7 +927,7 @@ function HomePage() {
                     <h3 className={isDarkMode ? 'text-xl text-white font-medium mb-6' : 'text-xl text-gray-900 font-medium mb-6'}>บริการของเรา</h3>
                     
                     {/* Tax Calculator */}
-                    <Link to="/calculator" className="block mb-4">
+                    <Link to="/tax-calculator" className="block mb-4">
                       <div className="flex items-center space-x-4">
                         <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
                           isDarkMode ? 'bg-[#1A1D24]' : 'bg-blue-50'
@@ -1582,6 +1584,8 @@ function HomePage() {
           }}
           product={selectedProduct}
           onAddToCart={handleAddToCart}
+          selectedColor={selectedColor}
+          onColorSelect={setSelectedColor}
         />
       )}
       {/* Order Modal */}
